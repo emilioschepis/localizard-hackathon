@@ -16,7 +16,7 @@ export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData();
   const email = form.get("email");
   const password = form.get("password");
-  const redirectTo = sanitizeRedirectTo(form.get("redirectTo"));
+  const redirectTo = sanitizeRedirectTo(form.get("redirectTo"), "/dashboard");
 
   if (typeof email !== "string" || typeof password !== "string") {
     return badRequest<ActionData>({

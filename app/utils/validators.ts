@@ -18,3 +18,19 @@ export function validatePassword(password: unknown) {
     return "password is too weak";
   }
 }
+
+export function validateProjectName(name: unknown) {
+  if (typeof name !== "string") {
+    return "project name must be a string";
+  }
+
+  if (name.length < 3) {
+    return "project name is too short";
+  }
+
+  const expression = /^[a-z0-9-]{3,}$/;
+
+  if (!expression.test(name)) {
+    return "project name must be lowercase letters, numbers, and dashes";
+  }
+}
