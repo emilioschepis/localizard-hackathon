@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "db",
+      "problemMatcher": [],
+      "label": "npm: db",
+      "detail": "pscale connect localizard dev --port 3309"
+    }
+  ]
+}
