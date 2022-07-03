@@ -3,6 +3,13 @@
   "tasks": [
     {
       "type": "npm",
+      "script": "dev",
+      "problemMatcher": [],
+      "label": "npm: dev",
+      "detail": "remix dev"
+    },
+    {
+      "type": "npm",
       "script": "db",
       "problemMatcher": [],
       "label": "npm: db",
