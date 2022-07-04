@@ -13,3 +13,15 @@ export async function createLabel(
     },
   });
 }
+
+export async function getLabel(id: string) {
+  return db.label.findUnique({ where: { id } });
+}
+
+export async function updateLabel(
+  id: string,
+  key: string,
+  description?: string
+) {
+  return db.label.update({ where: { id }, data: { key, description } });
+}
