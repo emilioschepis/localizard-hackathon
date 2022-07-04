@@ -59,6 +59,7 @@ export default function CreateProjectRoute() {
   return (
     <div>
       <h1>Create project</h1>
+      {action?.formError ? <p role="alert">{action.formError}</p> : null}
       <Form method="post">
         <div>
           <label htmlFor="name">Project name</label>

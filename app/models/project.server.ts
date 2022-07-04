@@ -13,5 +13,9 @@ export async function createProject(userId: string, name: string) {
 }
 
 export async function getProject(name: string) {
+  return db.project.findUnique({ where: { name } });
+}
+
+export async function getProjectWithLabels(name: string) {
   return db.project.findUnique({ where: { name }, include: { labels: true } });
 }

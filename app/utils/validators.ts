@@ -34,3 +34,21 @@ export function validateProjectName(name: unknown) {
     return "project name must be lowercase letters, numbers, and dashes";
   }
 }
+
+export function validateLabelKey(key: unknown) {
+  if (typeof key !== "string") {
+    return "label key must be a string";
+  }
+
+  const expression = /^[a-z-_]+(?:\.[a-z-_]+)*$/;
+
+  if (!expression.test(key)) {
+    return "label key must be lowercase letters, underscores and dashes, separated by dots";
+  }
+}
+
+export function validateLabelDescription(description: unknown) {
+  if (typeof description !== "string") {
+    return "label description must be a string";
+  }
+}
