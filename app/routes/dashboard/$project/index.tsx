@@ -22,9 +22,13 @@ export const action: ActionFunction = async ({ request, params }) => {
     throw notFound();
   }
 
-  await db.apiKey.update({
+  await db.apiKey.upsert({
     where: { projectId: project.id },
-    data: {
+    create: {
+      projectId: project.id,
+      key: uuid(),
+    },
+    update: {
       key: uuid(),
     },
   });
