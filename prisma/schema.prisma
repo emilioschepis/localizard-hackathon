@@ -30,5 +30,22 @@ model Project {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
 
+  labels Label[]
+
   @@index([userId])
+}
+
+model Label {
+  id          String  @id @default(cuid())
+  key         String
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+
+  @@unique([projectId, key])
+  @@index([projectId])
 }
