@@ -8,8 +8,14 @@ export async function getProjects(userId: string) {
   return db.project.findMany({ where: { userId } });
 }
 
-export async function createProject(userId: string, name: string) {
-  return db.project.create({ data: { userId, name } });
+export async function createProject(
+  userId: string,
+  name: string,
+  apiKey: string
+) {
+  return db.project.create({
+    data: { userId, name, apiKey: { create: { key: apiKey } } },
+  });
 }
 
 export async function getProject(name: string) {
@@ -18,4 +24,11 @@ export async function getProject(name: string) {
 
 export async function getProjectWithLabels(name: string) {
   return db.project.findUnique({ where: { name }, include: { labels: true } });
+}
+
+export async function getProjectWithLabelsAndKey(name: string) {
+  return db.project.findUnique({
+    where: { name },
+    include: { labels: true, apiKey: true },
+  });
 }

@@ -2,6 +2,7 @@ import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
+import { v4 as uuid } from "uuid";
 
 import { db } from "~/lib/db.server";
 import { requireUserId } from "~/lib/session.server";
@@ -48,7 +49,7 @@ export const action: ActionFunction = async ({ request }) => {
     });
   }
 
-  const project = await createProject(userId, name);
+  const project = await createProject(userId, name, uuid());
 
   return redirect(`/dashboard/${project.name}`);
 };

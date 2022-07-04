@@ -1,17 +1,40 @@
-import type { LoaderFunction } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { Form, Link, useLoaderData } from "@remix-run/react";
+import { v4 as uuid } from "uuid";
 
+import { db } from "~/lib/db.server";
 import { requireUserId } from "~/lib/session.server";
-import { getProjectWithLabels } from "~/models/project.server";
+import {
+  getProject,
+  getProjectWithLabelsAndKey,
+} from "~/models/project.server";
 import { notFound } from "~/utils/responses";
 
 type LoaderData = {
-  project: NonNullable<Awaited<ReturnType<typeof getProjectWithLabels>>>;
+  project: NonNullable<Awaited<ReturnType<typeof getProjectWithLabelsAndKey>>>;
+};
+
+export const action: ActionFunction = async ({ request, params }) => {
+  const userId = await requireUserId(request);
+
+  const project = await getProject(params.project as string);
+  if (!project || project.userId !== userId) {
+    throw notFound();
+  }
+
+  await db.apiKey.update({
+    where: { projectId: project.id },
+    data: {
+      key: uuid(),
+    },
+  });
+
+  return new Response("OK", { status: 200 });
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const userId = await requireUserId(request);
-  const project = await getProjectWithLabels(params.project as string);
+  const project = await getProjectWithLabelsAndKey(params.project as string);
 
   if (!project || project.userId !== userId) {
     throw notFound();
@@ -29,6 +52,13 @@ export default function ProjectRoute() {
     <div>
       <h1>{data.project.name}</h1>
       <h2>Labels</h2>
+      <details>
+        <summary>Api Key</summary>
+        {data.project.apiKey ? <code>{data.project.apiKey.key}</code> : null}
+        <Form method="post">
+          <button type="submit">Regenerate</button>
+        </Form>
+      </details>
       <ul>
         {data.project.labels.map((label) => (
           <li key={label.id}>
