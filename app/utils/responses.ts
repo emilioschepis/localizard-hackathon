@@ -7,3 +7,7 @@ export function badRequest<T>(data: T) {
 export function notFound() {
   return new Response("Not Found", { status: 404 });
 }
+
+export function unauthorized() {
+  return new Response("Unauthorized", { status: 401 });
+}

@@ -1,5 +1,7 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
 
+import { unauthorized } from "~/utils/responses";
+
 const sessionSecret = process.env.SESSION_SECRET;
 if (!sessionSecret) {
   throw new Error("SESSION_SECRET must be set");
@@ -46,6 +48,16 @@ export async function requireUserId(
   if (!userId || typeof userId !== "string") {
     const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
     throw redirect(`/login?${searchParams}`);
+  }
+
+  return userId;
+}
+
+export async function requireUserIdApi(request: Request) {
+  const session = await getUserSession(request);
+  const userId = session.get("userId");
+  if (!userId || typeof userId !== "string") {
+    throw unauthorized();
   }
 
   return userId;
