@@ -30,8 +30,9 @@ model Project {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
 
-  labels Label[]
-  apiKey ApiKey?
+  labels  Label[]
+  locales Locale[]
+  apiKey  ApiKey?
 
   @@index([userId])
 }
@@ -60,6 +61,39 @@ model Label {
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String
 
+  translations Translation[]
+
   @@unique([projectId, key])
   @@index([projectId])
+}
+
+model Locale {
+  id   String @id @default(cuid())
+  name String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+
+  translations Translation[]
+
+  @@unique([projectId, name])
+  @@index([projectId])
+}
+
+model Translation {
+  id    String @id @default(cuid())
+  value String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  locale   Locale @relation(fields: [localeId], references: [id], onDelete: Cascade)
+  localeId String
+  label    Label  @relation(fields: [labelId], references: [id], onDelete: Cascade)
+  labelId  String
+
+  @@index([localeId, labelId])
 }
