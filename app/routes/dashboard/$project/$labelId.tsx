@@ -1,33 +1,80 @@
-import type { LoaderFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import type { PrismaPromise } from "@prisma/client";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { Form, useLoaderData } from "@remix-run/react";
 
+import { db } from "~/lib/db.server";
 import { requireUserId } from "~/lib/session.server";
-import { getLabel } from "~/models/label.server";
-import { getProject } from "~/models/project.server";
 import { notFound } from "~/utils/responses";
 
 type LoaderData = {
   label: NonNullable<Awaited<ReturnType<typeof getLabel>>>;
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
+async function getLabel(id: string) {
+  return db.label.findUnique({
+    where: { id },
+    include: {
+      project: { include: { locales: true } },
+      translations: true,
+    },
+  });
+}
+
+export const action: ActionFunction = async ({ request, params }) => {
   const userId = await requireUserId(request);
-  const project = await getProject(params.project as string);
-
-  if (!project || project.userId !== userId) {
-    throw notFound();
-  }
-
   const label = await getLabel(params.labelId as string);
 
-  if (!label) {
+  if (!label || label.project.userId !== userId) {
     throw notFound();
   }
 
-  return json({
-    label,
-  });
+  const form = await request.formData();
+  const operations: Array<PrismaPromise<any>> = [];
+
+  for (const [localeId, value] of form) {
+    if (typeof value !== "string") {
+      continue;
+    }
+
+    // Do not update non-existent locales
+    if (!label.project.locales.some((locale) => locale.id === localeId)) {
+      continue;
+    }
+
+    // Do not update translations that haven't changed
+    const translation = label.translations.find((t) => t.localeId === localeId);
+    if (translation && translation.value === value) {
+      continue;
+    }
+
+    if (translation) {
+      operations.push(
+        db.translation.update({
+          where: { id: translation.id },
+          data: { value },
+        })
+      );
+    } else {
+      operations.push(
+        db.translation.create({ data: { labelId: label.id, localeId, value } })
+      );
+    }
+  }
+
+  await db.$transaction(operations);
+
+  return new Response("OK", { status: 200 });
+};
+
+export const loader: LoaderFunction = async ({ request, params }) => {
+  const userId = await requireUserId(request);
+  const label = await getLabel(params.labelId as string);
+
+  if (!label || label.project.userId !== userId) {
+    throw notFound();
+  }
+
+  return { label };
 };
 
 export default function LabelRoute() {
@@ -37,7 +84,28 @@ export default function LabelRoute() {
     <div>
       <h1>{data.label.key}</h1>
       <p>{data.label.description || <em>no description</em>}</p>
-      <Link to="edit">Edit label</Link>
+      <h2>Translations</h2>
+      <Form method="post" replace>
+        {data.label.project.locales.map((locale) => {
+          const translation = data.label.translations.find(
+            (t) => t.localeId === locale.id
+          );
+
+          return (
+            <div key={locale.id}>
+              <label htmlFor={locale.id}>{locale.name}</label>
+              <input
+                type="text"
+                id={locale.id}
+                name={locale.id}
+                defaultValue={translation?.value}
+              />
+            </div>
+          );
+        })}
+        <button type="submit">Update</button>
+      </Form>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
     </div>
   );
 }

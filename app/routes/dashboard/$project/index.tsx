@@ -13,12 +13,33 @@ type LoaderData = {
 async function getProject(name: string) {
   return db.project.findUnique({
     where: { name },
-    include: {
-      apiKey: true,
-      locales: true,
+    select: {
+      id: true,
+      name: true,
+      userId: true,
+      apiKey: {
+        select: {
+          key: true,
+        },
+      },
+      locales: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
       labels: {
-        include: {
-          translations: true,
+        select: {
+          id: true,
+          key: true,
+          description: true,
+          translations: {
+            select: {
+              id: true,
+              localeId: true,
+              value: true,
+            },
+          },
         },
       },
     },
