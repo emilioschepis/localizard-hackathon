@@ -1,10 +1,11 @@
 import type { PrismaPromise } from "@prisma/client";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
 
 import { db } from "~/lib/db.server";
 import { requireUserId } from "~/lib/session.server";
-import { notFound } from "~/utils/responses";
+import { badRequest, notFound } from "~/utils/responses";
 
 type LoaderData = {
   label: NonNullable<Awaited<ReturnType<typeof getLabel>>>;
@@ -29,41 +30,62 @@ export const action: ActionFunction = async ({ request, params }) => {
   }
 
   const form = await request.formData();
-  const operations: Array<PrismaPromise<any>> = [];
+  const intent = form.get("intent");
 
-  for (const [localeId, value] of form) {
-    if (typeof value !== "string") {
-      continue;
-    }
+  if (intent === "update") {
+    const operations: Array<PrismaPromise<any>> = [];
 
-    // Do not update non-existent locales
-    if (!label.project.locales.some((locale) => locale.id === localeId)) {
-      continue;
-    }
+    for (const [localeId, value] of form) {
+      if (localeId === "intent") {
+        // Skip the intent key
+        continue;
+      }
 
-    // Do not update translations that haven't changed
-    const translation = label.translations.find((t) => t.localeId === localeId);
-    if (translation && translation.value === value) {
-      continue;
-    }
+      if (typeof value !== "string") {
+        continue;
+      }
 
-    if (translation) {
-      operations.push(
-        db.translation.update({
-          where: { id: translation.id },
-          data: { value },
-        })
+      // Do not update non-existent locales
+      if (!label.project.locales.some((locale) => locale.id === localeId)) {
+        continue;
+      }
+
+      // Do not update translations that haven't changed
+      const translation = label.translations.find(
+        (t) => t.localeId === localeId
       );
-    } else {
-      operations.push(
-        db.translation.create({ data: { labelId: label.id, localeId, value } })
-      );
+      if (translation && translation.value === value) {
+        continue;
+      }
+
+      if (translation) {
+        operations.push(
+          db.translation.update({
+            where: { id: translation.id },
+            data: { value },
+          })
+        );
+      } else {
+        operations.push(
+          db.translation.create({
+            data: { labelId: label.id, localeId, value },
+          })
+        );
+      }
     }
+
+    await db.$transaction(operations);
+
+    return new Response("OK", { status: 200 });
   }
 
-  await db.$transaction(operations);
+  if (intent === "delete") {
+    await db.label.delete({ where: { id: label.id } });
 
-  return new Response("OK", { status: 200 });
+    return redirect(`dashboard/${label.project.name}`);
+  }
+
+  throw badRequest({});
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -86,6 +108,8 @@ export default function LabelRoute() {
       <p>{data.label.description || <em>no description</em>}</p>
       <h2>Translations</h2>
       <Form method="post" replace>
+        <input type="hidden" name="intent" value="update" />
+
         {data.label.project.locales.map((locale) => {
           const translation = data.label.translations.find(
             (t) => t.localeId === locale.id
@@ -105,7 +129,10 @@ export default function LabelRoute() {
         })}
         <button type="submit">Update</button>
       </Form>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
+      <Form method="post">
+        <input type="hidden" name="intent" value="delete" />
+        <button type="submit">Delete</button>
+      </Form>
     </div>
   );
 }

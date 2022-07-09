@@ -102,6 +102,7 @@ export default function ProjectRoute() {
           <button type="submit">Regenerate</button>
         </Form>
       </details>
+
       <h2>Labels</h2>
       <table>
         <thead>
@@ -131,18 +132,15 @@ export default function ProjectRoute() {
           ))}
         </tbody>
       </table>
+      <Link to="create-label">Create label</Link>
 
       <h2>Locales</h2>
       <ul>
         {data.project.locales.map((locale) => (
           <li key={locale.id}>{locale.name}</li>
         ))}
-        <li>
-          <Link to="create-locale">Create locale</Link>
-        </li>
       </ul>
-
-      <Link to="create-label">Create label</Link>
+      <Link to="create-locale">Create locale</Link>
     </div>
   );
 }
