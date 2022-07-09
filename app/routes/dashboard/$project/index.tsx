@@ -4,7 +4,7 @@ import { v4 as uuid } from "uuid";
 
 import { db } from "~/lib/db.server";
 import { requireUserId } from "~/lib/session.server";
-import { notFound } from "~/utils/responses";
+import { badRequest, notFound } from "~/utils/responses";
 
 type LoaderData = {
   project: NonNullable<Awaited<ReturnType<typeof getProject>>>;
@@ -68,9 +68,11 @@ export const action: ActionFunction = async ({ request, params }) => {
         key: uuid(),
       },
     });
+
+    return new Response("OK", { status: 200 });
   }
 
-  return new Response("OK", { status: 200 });
+  throw badRequest({});
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -129,6 +131,17 @@ export default function ProjectRoute() {
           ))}
         </tbody>
       </table>
+
+      <h2>Locales</h2>
+      <ul>
+        {data.project.locales.map((locale) => (
+          <li key={locale.id}>{locale.name}</li>
+        ))}
+        <li>
+          <Link to="create-locale">Create locale</Link>
+        </li>
+      </ul>
+
       <Link to="create-label">Create label</Link>
     </div>
   );
