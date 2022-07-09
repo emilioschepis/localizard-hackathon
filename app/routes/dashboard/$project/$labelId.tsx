@@ -76,7 +76,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
     await db.$transaction(operations);
 
-    return new Response("OK", { status: 200 });
+    return redirect(`dashboard/${label.project.name}`);
   }
 
   if (intent === "delete") {
