@@ -1,146 +1,102 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { Form, Link, useLoaderData } from "@remix-run/react";
-import { v4 as uuid } from "uuid";
+import type { LoaderFunction } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 
 import { db } from "~/lib/db.server";
-import { requireUserId } from "~/lib/session.server";
-import { badRequest, notFound } from "~/utils/responses";
 
 type LoaderData = {
   project: NonNullable<Awaited<ReturnType<typeof getProject>>>;
 };
 
 async function getProject(name: string) {
-  return db.project.findUnique({
+  return db.project.findUniqueOrThrow({
     where: { name },
     select: {
-      id: true,
-      name: true,
-      userId: true,
-      apiKey: {
-        select: {
-          key: true,
-        },
-      },
-      locales: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
       labels: {
         select: {
           id: true,
           key: true,
           description: true,
           translations: {
+            where: { value: { not: { equals: "" } } },
+            orderBy: { updatedAt: "desc" },
             select: {
-              id: true,
-              localeId: true,
-              value: true,
+              updatedAt: true,
+              locale: {
+                select: {
+                  name: true,
+                },
+              },
             },
           },
         },
+        orderBy: { key: "asc" },
       },
     },
   });
 }
 
-export const action: ActionFunction = async ({ request, params }) => {
-  const userId = await requireUserId(request);
-  const form = await request.formData();
-
-  const intent = form.get("intent");
-
-  const project = await getProject(params.project as string);
-  if (!project || project.userId !== userId) {
-    throw notFound();
-  }
-
-  if (intent === "regenerate-api-key") {
-    await db.apiKey.upsert({
-      where: { projectId: project.id },
-      create: {
-        projectId: project.id,
-        key: uuid(),
-      },
-      update: {
-        key: uuid(),
-      },
-    });
-
-    return new Response("OK", { status: 200 });
-  }
-
-  throw badRequest({});
-};
-
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const userId = await requireUserId(request);
-  const project = await getProject(params.project as string);
-
-  if (!project || project.userId !== userId) {
-    throw notFound();
-  }
+  const project = await getProject(params.project!);
 
   return {
     project,
   };
 };
 
-export default function ProjectRoute() {
+export default function ProjectIndexRoute() {
   const data = useLoaderData<LoaderData>();
 
   return (
-    <div>
-      <h1>{data.project.name}</h1>
-      <details>
-        <summary>Api Key</summary>
-        {data.project.apiKey ? <code>{data.project.apiKey.key}</code> : null}
-        <Form method="post" replace>
-          <input type="hidden" name="intent" value="regenerate-api-key" />
-          <button type="submit">Regenerate</button>
-        </Form>
-      </details>
+    <div className="flex flex-col">
+      <h2 className="text-2xl font-bold">Labels</h2>
+      <Link
+        to="create-label"
+        className="mt-2 flex h-11 w-full items-center justify-center rounded-lg bg-emerald-800 px-2 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      >
+        Create label
+      </Link>
+      <div className="mt-2 space-y-4">
+        {data.project.labels.map((label) => {
+          const updatedAt =
+            label.translations.length > 0
+              ? new Date(label.translations[0].updatedAt)
+              : null;
 
-      <h2>Labels</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>key</th>
-            <th>description</th>
-            {data.project.locales.map((locale) => (
-              <th key={locale.id}>{locale.name}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.project.labels.map((label) => (
-            <tr key={label.id}>
-              <td>
-                <Link to={label.id}>{label.key}</Link>
-              </td>
-              <td>{label.description ?? "-"}</td>
-              {data.project.locales.map((locale) => {
-                const translation = label.translations.find(
-                  (t) => t.localeId === locale.id
-                );
+          const locales = label.translations
+            .map((translation) => translation.locale.name)
+            .sort();
 
-                return <td key={label.id + locale.id}>{translation?.value}</td>;
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <Link to="create-label">Create label</Link>
-
-      <h2>Locales</h2>
-      <ul>
-        {data.project.locales.map((locale) => (
-          <li key={locale.id}>{locale.name}</li>
-        ))}
-      </ul>
-      <Link to="create-locale">Create locale</Link>
+          return (
+            <Link
+              key={label.id}
+              to={label.id}
+              className="rounded-lg focus:outline-emerald-500"
+            >
+              <div className="my-2 rounded-lg bg-white p-4 shadow-md">
+                <h3 className="text-xl font-bold">{label.key}</h3>
+                {label.description ? (
+                  <p>{label.description}</p>
+                ) : (
+                  <p className="italic">no description</p>
+                )}
+                {label.translations.length > 0 ? (
+                  <>
+                    <p>Last updated: {updatedAt?.toLocaleString()}</p>
+                    <p>
+                      Translated in:{" "}
+                      <span className="font-semibold">
+                        {locales.join(", ")}
+                      </span>
+                    </p>
+                  </>
+                ) : (
+                  <p className="font-semibold">No translations provided</p>
+                )}
+              </div>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

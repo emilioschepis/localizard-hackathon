@@ -80,11 +80,20 @@ export default function CreateProjectRoute() {
 
   return (
     <div>
-      <h1>Create label</h1>
-      {action?.formError ? <p role="alert">{action.formError}</p> : null}
+      <h2 className="mb-2 text-2xl font-bold">Create label</h2>
+      {action?.formError ? (
+        <p
+          role="alert"
+          className="my-2 rounded-lg bg-red-600 px-4 py-2 font-semibold text-white"
+        >
+          {action.formError}
+        </p>
+      ) : null}
       <Form method="post">
-        <div>
-          <label htmlFor="key">Label key</label>
+        <div className="mb-4 flex flex-col">
+          <label htmlFor="key" className="mb-1 text-sm font-semibold uppercase">
+            Label key
+          </label>
           <input
             type="text"
             id="key"
@@ -96,18 +105,33 @@ export default function CreateProjectRoute() {
             aria-errormessage={
               action?.fieldErrors?.key ? "key-error" : undefined
             }
+            placeholder="your.key.name"
+            className={`rounded-lg focus:outline-emerald-500 ${
+              action?.fieldErrors?.key
+                ? "ring-2 ring-red-600 focus:ring-red-600"
+                : ""
+            }`}
           />
-          <p>
+          <p className="mt-1 text-sm text-gray-700">
             Use lowercase letters, underscores and dashes, separated by dots
           </p>
           {action?.fieldErrors?.key ? (
-            <p id="key-error" role="alert">
+            <p
+              id="key-error"
+              role="alert"
+              className="mt-2 font-semibold text-red-600"
+            >
               {action.fieldErrors.key}
             </p>
           ) : null}
         </div>
-        <div>
-          <label htmlFor="description">Label description (optional)</label>
+        <div className="mb-4 flex flex-col">
+          <label
+            htmlFor="description"
+            className="mb-1 text-sm font-semibold uppercase"
+          >
+            Label description (optional)
+          </label>
           <input
             type="text"
             id="description"
@@ -117,14 +141,33 @@ export default function CreateProjectRoute() {
             aria-errormessage={
               action?.fieldErrors?.description ? "description-error" : undefined
             }
+            placeholder="This label is used..."
+            className={`rounded-lg focus:outline-emerald-500 ${
+              action?.fieldErrors?.key
+                ? "ring-2 ring-red-600 focus:ring-red-600"
+                : ""
+            }`}
           />
+          <p className="mt-1 text-sm text-gray-700">
+            Optionally describe how the label is used inside the project to
+            simplify the creation of translations
+          </p>
           {action?.fieldErrors?.description ? (
-            <p id="description-error" role="alert">
+            <p
+              id="description-error"
+              role="alert"
+              className="mt-2 font-semibold text-red-600"
+            >
               {action.fieldErrors.description}
             </p>
           ) : null}
         </div>
-        <button type="submit">Create</button>
+        <button
+          type="submit"
+          className="h-11 w-full rounded-lg bg-emerald-800 px-2 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        >
+          Create
+        </button>
       </Form>
     </div>
   );

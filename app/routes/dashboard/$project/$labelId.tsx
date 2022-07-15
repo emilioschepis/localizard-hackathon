@@ -14,9 +14,31 @@ type LoaderData = {
 async function getLabel(id: string) {
   return db.label.findUnique({
     where: { id },
-    include: {
-      project: { include: { locales: true } },
-      translations: true,
+    select: {
+      id: true,
+      key: true,
+      description: true,
+      project: {
+        select: {
+          userId: true,
+          name: true,
+          locales: {
+            orderBy: { name: "asc" },
+            select: {
+              id: true,
+              name: true,
+              translations: {
+                where: { labelId: id },
+                take: 1,
+                select: {
+                  id: true,
+                  value: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 }
@@ -35,25 +57,30 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (intent === "update") {
     const operations: Array<PrismaPromise<any>> = [];
 
-    for (const [localeId, value] of form) {
-      if (localeId === "intent") {
-        // Skip the intent key
+    for (const [key, value] of form) {
+      if (!key.startsWith("locale.")) {
+        // SKip non-locale keys
         continue;
       }
+
+      const localeId = key.replace("locale.", "");
 
       if (typeof value !== "string") {
         continue;
       }
 
+      const locale = label.project.locales.find(
+        (locale) => locale.id === localeId
+      );
+
       // Do not update non-existent locales
-      if (!label.project.locales.some((locale) => locale.id === localeId)) {
+      if (!locale) {
         continue;
       }
 
+      const translation = locale.translations[0];
+
       // Do not update translations that haven't changed
-      const translation = label.translations.find(
-        (t) => t.localeId === localeId
-      );
       if (translation && translation.value === value) {
         continue;
       }
@@ -104,34 +131,42 @@ export default function LabelRoute() {
 
   return (
     <div>
-      <h1>{data.label.key}</h1>
-      <p>{data.label.description || <em>no description</em>}</p>
-      <h2>Translations</h2>
-      <Form method="post" replace>
+      <h2 className="text-2xl font-bold">{data.label.key}</h2>
+      {data.label.description ? (
+        <p>{data.label.description}</p>
+      ) : (
+        <p className="italic">no description</p>
+      )}
+      <Form method="post">
         <input type="hidden" name="intent" value="update" />
-
         {data.label.project.locales.map((locale) => {
-          const translation = data.label.translations.find(
-            (t) => t.localeId === locale.id
-          );
+          const translation = locale.translations[0]?.value;
 
           return (
-            <div key={locale.id}>
-              <label htmlFor={locale.id}>{locale.name}</label>
+            <div key={locale.id} className="my-4 flex flex-col">
+              <label
+                htmlFor={locale.id}
+                className="mb-1 text-sm font-semibold uppercase"
+              >
+                {locale.name}
+              </label>
               <input
                 type="text"
                 id={locale.id}
-                name={locale.id}
-                defaultValue={translation?.value}
+                name={`locale.${locale.id}`}
+                defaultValue={translation}
+                placeholder={`Translation for ${locale.name}`}
+                className="rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
             </div>
           );
         })}
-        <button type="submit">Update</button>
-      </Form>
-      <Form method="post">
-        <input type="hidden" name="intent" value="delete" />
-        <button type="submit">Delete</button>
+        <button
+          type="submit"
+          className="h-11 w-full rounded-lg bg-emerald-800 px-2 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        >
+          Update
+        </button>
       </Form>
     </div>
   );
