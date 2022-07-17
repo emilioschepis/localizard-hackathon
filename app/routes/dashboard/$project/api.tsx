@@ -1,6 +1,13 @@
-import { EyeIcon, EyeOffIcon, KeyIcon } from "@heroicons/react/outline";
+import { Switch } from "@headlessui/react";
+import {
+  EyeIcon,
+  EyeOffIcon,
+  KeyIcon,
+  LockClosedIcon,
+  LockOpenIcon,
+} from "@heroicons/react/outline";
 import type { LoaderFunction } from "@remix-run/node";
-import { useLoaderData, useParams } from "@remix-run/react";
+import { useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { useState } from "react";
 
 import { db } from "~/lib/db.server";
@@ -25,6 +32,7 @@ async function getApiKey(projectName: string) {
       project: {
         select: {
           userId: true,
+          public: true,
           locales: {
             select: {
               name: true,
@@ -55,6 +63,7 @@ export default function ApiRoute() {
   const params = useParams();
   const data = useLoaderData<LoaderData>();
   const [show, setShow] = useState(false);
+  const fetcher = useFetcher();
 
   return (
     <div className="py-4">
@@ -74,9 +83,9 @@ export default function ApiRoute() {
               <KeyIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
             </div>
             <input
+              readOnly
               type={show ? "text" : "password"}
               value={data.key.key}
-              contentEditable={false}
               className="block w-full rounded-none rounded-l-md border-gray-300 pl-10 focus:border-emerald-600 focus:ring-emerald-600 sm:text-sm"
             />
           </div>
@@ -96,8 +105,45 @@ export default function ApiRoute() {
             <span>{show ? "Hide" : "Show"}</span>
           </button>
         </div>
+        <div>
+          <Switch.Group>
+            <div className="mt-4 flex items-center">
+              {data.key.project.public ? (
+                <LockOpenIcon aria-hidden className="h-5 w-5 text-red-600" />
+              ) : (
+                <LockClosedIcon aria-hidden className="h-5 w-5 text-gray-700" />
+              )}
+              <Switch.Label className="mx-2 text-gray-700">
+                Project is currently{" "}
+                {data.key.project.public ? "public" : "private"}
+              </Switch.Label>
+              <Switch
+                disabled={fetcher.state !== "idle"}
+                checked={data.key.project.public}
+                onChange={(value) => {
+                  fetcher.submit(
+                    { setPublic: `${value}` },
+                    {
+                      method: "post",
+                      action: `/dashboard/${params.project}/api/set-public`,
+                    }
+                  );
+                }}
+                className={`${
+                  data.key.project.public ? "bg-emerald-600" : "bg-gray-200"
+                } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2`}
+              >
+                <span
+                  className={`${
+                    data.key.project.public ? "translate-x-6" : "translate-x-1"
+                  } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                />
+              </Switch>
+            </div>
+          </Switch.Group>
+        </div>
       </div>
-      <div className="mt-6 sm:flex sm:items-center">
+      <div className="mt-4 sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <h2 className="text-xl font-semibold text-gray-900">How to use</h2>
           <p className="mt-2 text-sm text-gray-700">

@@ -36,18 +36,23 @@ async function getProject(name: string, locale: string) {
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const apiKey = request.headers.get("X-Api-Key");
-  if (typeof apiKey !== "string") {
-    throw unauthorized();
-  }
-
   const project = await getProject(
     params.project as string,
     params.locale as string
   );
-
-  if (!project || project.apiKey?.key !== apiKey) {
+  if (!project) {
     throw notFound();
+  }
+
+  if (!project.public) {
+    const apiKey = request.headers.get("X-Api-Key");
+    if (typeof apiKey !== "string") {
+      throw unauthorized();
+    }
+
+    if (project.apiKey?.key !== apiKey) {
+      throw unauthorized();
+    }
   }
 
   if (project.locales.length === 0) {
@@ -56,10 +61,13 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   const locale = project.locales[0];
 
-  const translations = locale.translations.reduce(
-    (loc, trans) => ({ ...loc, [trans.label.key]: trans.value }),
-    {}
-  );
+  const translations = locale.translations.reduce((loc, trans) => {
+    if (trans.value) {
+      return { ...loc, [trans.label.key]: trans.value };
+    } else {
+      return loc;
+    }
+  }, {});
 
   return json({
     project: {

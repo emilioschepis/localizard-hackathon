@@ -21,8 +21,9 @@ model User {
 }
 
 model Project {
-  id   String @id @default(cuid())
-  name String @unique
+  id     String  @id @default(cuid())
+  name   String  @unique
+  public Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

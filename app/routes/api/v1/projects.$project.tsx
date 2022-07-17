@@ -29,23 +29,32 @@ async function getProject(name: string) {
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const apiKey = request.headers.get("X-Api-Key");
-  if (typeof apiKey !== "string") {
-    throw unauthorized();
+  const project = await getProject(params.project as string);
+  if (!project) {
+    throw notFound();
   }
 
-  const project = await getProject(params.project as string);
-  if (!project || project.apiKey?.key !== apiKey) {
-    throw notFound();
+  if (!project.public) {
+    const apiKey = request.headers.get("X-Api-Key");
+    if (typeof apiKey !== "string") {
+      throw unauthorized();
+    }
+
+    if (project.apiKey?.key !== apiKey) {
+      throw unauthorized();
+    }
   }
 
   const translations = project.locales.reduce(
     (obj, locale) => ({
       ...obj,
-      [locale.name]: locale.translations.reduce(
-        (loc, trans) => ({ ...loc, [trans.label.key]: trans.value }),
-        {}
-      ),
+      [locale.name]: locale.translations.reduce((loc, trans) => {
+        if (trans.value) {
+          return { ...loc, [trans.label.key]: trans.value };
+        } else {
+          return loc;
+        }
+      }, {}),
     }),
     {}
   );
