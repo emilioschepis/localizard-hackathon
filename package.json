@@ -7,7 +7,7 @@
     "dev": "concurrently \"npm run dev:css\" \"remix dev\"",
     "dev:css": "tailwindcss -w -o app/styles/tailwind.css",
     "db": "pscale connect localizard dev --port 3309",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate && ./scripts/labels.sh"
   },
   "dependencies": {
     "@headlessui/react": "^1.6.6",
@@ -18,8 +18,14 @@
     "@remix-run/vercel": "^1.6.3",
     "@vercel/node": "^1.15.2",
     "bcryptjs": "^2.4.3",
+    "i18next": "^21.8.14",
+    "i18next-browser-languagedetector": "^6.1.4",
+    "i18next-fs-backend": "^1.1.4",
+    "i18next-http-backend": "^1.4.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-i18next": "^11.18.1",
+    "remix-i18next": "^4.1.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -28,6 +34,7 @@
     "@remix-run/serve": "^1.6.3",
     "@tailwindcss/forms": "^0.5.2",
     "@types/bcryptjs": "^2.4.2",
+    "@types/i18next-fs-backend": "^1.1.2",
     "@types/react": "^17.0.45",
     "@types/react-dom": "^17.0.17",
     "@types/uuid": "^8.3.4",
