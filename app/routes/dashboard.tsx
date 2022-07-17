@@ -73,11 +73,12 @@ export default function DashboardRoute() {
                     </div>
                   </Transition.Child>
                   <div className="flex flex-shrink-0 items-center px-4">
-                    <img
-                      className="h-8 w-auto"
-                      src="https://tailwindui.com/img/logos/workflow-logo-indigo-600-mark-gray-800-text.svg"
-                      alt="Workflow"
-                    />
+                    <p
+                      aria-hidden
+                      className="text-xl font-bold text-emerald-700"
+                    >
+                      Localizard
+                    </p>
                   </div>
                   <div className="mt-5 h-0 flex-1 overflow-y-auto">
                     <nav className="space-y-1 px-2">
@@ -126,11 +127,9 @@ export default function DashboardRoute() {
           {/* Sidebar component, swap this element with another sidebar if you like */}
           <div className="flex flex-grow flex-col overflow-y-auto border-r border-gray-200 bg-white pt-5">
             <div className="flex flex-shrink-0 items-center px-4">
-              <img
-                className="h-8 w-auto"
-                src="https://tailwindui.com/img/logos/workflow-logo-indigo-600-mark-gray-800-text.svg"
-                alt="Workflow"
-              />
+              <p aria-hidden className="text-xl font-bold text-emerald-700">
+                Localizard
+              </p>
             </div>
             <div className="mt-5 flex flex-grow flex-col">
               <nav className="flex-1 space-y-1 px-2 pb-4">
@@ -171,7 +170,7 @@ export default function DashboardRoute() {
           <div className="sticky top-0 z-10 flex h-16 flex-shrink-0 bg-white shadow">
             <button
               type="button"
-              className="border-r border-gray-200 px-4 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 md:hidden"
+              className="border-r border-gray-200 px-4 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-600 md:hidden"
               onClick={() => setSidebarOpen(true)}
             >
               <span className="sr-only">Open sidebar</span>
@@ -183,7 +182,7 @@ export default function DashboardRoute() {
                 {/* Profile dropdown */}
                 <Menu as="div" className="relative ml-3">
                   <div>
-                    <Menu.Button className="flex max-w-xs items-center rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    <Menu.Button className="flex max-w-xs items-center rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2">
                       <span className="sr-only">Open user menu</span>
                       <img
                         className="h-8 w-8 rounded-full"

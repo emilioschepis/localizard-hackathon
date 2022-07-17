@@ -60,7 +60,7 @@ export default function ProjectRoute() {
               <select
                 id="current-tab"
                 name="current-tab"
-                className="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                className="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-emerald-600 focus:outline-none focus:ring-emerald-600 sm:text-sm"
                 // defaultValue={tabs.find((tab) => tab.current).name}
                 onChange={(el) => navigate(el.target.value)}
               >
@@ -81,7 +81,7 @@ export default function ProjectRoute() {
                     className={({ isActive }) =>
                       classNames(
                         isActive
-                          ? "border-indigo-500 text-indigo-600"
+                          ? "border-emerald-600 text-emerald-700"
                           : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
                         "whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium"
                       )

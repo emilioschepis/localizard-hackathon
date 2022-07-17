@@ -93,7 +93,7 @@ export default function RegisterRoute() {
               aria-errormessage={
                 action?.fieldErrors?.email ? "email-error" : undefined
               }
-              className={`rounded-lg focus:outline-emerald-500 ${
+              className={`rounded-lg focus:outline-emerald-600 ${
                 action?.fieldErrors?.email
                   ? "ring-2 ring-red-600 focus:ring-red-600"
                   : ""
@@ -127,7 +127,7 @@ export default function RegisterRoute() {
               aria-errormessage={
                 action?.fieldErrors?.password ? "password-error" : undefined
               }
-              className={`rounded-lg focus:outline-emerald-500 ${
+              className={`rounded-lg focus:outline-emerald-600 ${
                 action?.fieldErrors?.password
                   ? "ring-2 ring-red-600 focus:ring-red-600"
                   : ""
@@ -146,7 +146,7 @@ export default function RegisterRoute() {
           </div>
           <button
             type="submit"
-            className="h-11 w-full rounded-lg bg-emerald-800 px-2 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-emerald-700 focus:outline-emerald-500"
+            className="h-11 w-full rounded-lg bg-emerald-800 px-2 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-emerald-700 focus:outline-emerald-600"
           >
             Register
           </button>

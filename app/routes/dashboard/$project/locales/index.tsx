@@ -85,7 +85,7 @@ export default function LocalesRoute() {
           <Link
             to="create-locale"
             type="button"
-            className="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
+            className="inline-flex items-center justify-center rounded-md border border-transparent bg-emerald-700 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 sm:w-auto"
           >
             Create locale
           </Link>
@@ -146,7 +146,7 @@ export default function LocalesRoute() {
                           <div className="flex items-center justify-end gap-2">
                             <Link
                               to={locale.name}
-                              className="text-indigo-600 hover:text-indigo-900"
+                              className="text-emerald-700 hover:text-emerald-900"
                             >
                               Edit
                               <span className="sr-only">, {locale.name}</span>
