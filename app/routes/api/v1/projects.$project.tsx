@@ -59,12 +59,19 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     {}
   );
 
-  return json({
-    project: {
-      name: project.name,
-      createdAt: project.createdAt,
-      updatedAt: project.updatedAt,
-      translations,
+  return json(
+    {
+      project: {
+        name: project.name,
+        createdAt: project.createdAt,
+        updatedAt: project.updatedAt,
+        translations,
+      },
     },
-  });
+    {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+    }
+  );
 };
