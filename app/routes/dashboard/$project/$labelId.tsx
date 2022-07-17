@@ -130,43 +130,53 @@ export default function LabelRoute() {
   const data = useLoaderData<LoaderData>();
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold">{data.label.key}</h2>
-      {data.label.description ? (
-        <p>{data.label.description}</p>
-      ) : (
-        <p className="italic">no description</p>
-      )}
+    <div className="py-4">
+      <div className="sm:flex sm:items-center">
+        <div className="sm:flex-auto">
+          <h2 className="text-xl font-semibold text-gray-900">
+            {data.label.key}
+          </h2>
+          <p className="mt-2 text-sm text-gray-700">
+            {data.label.description || (
+              <span className="italic">no description</span>
+            )}
+          </p>
+        </div>
+      </div>
       <Form method="post">
-        <input type="hidden" name="intent" value="update" />
-        {data.label.project.locales.map((locale) => {
-          const translation = locale.translations[0]?.value;
+        <div className="mt-4 flex flex-col">
+          <input type="hidden" name="intent" value="update" />
+          {data.label.project.locales.map((locale) => {
+            const translation = locale.translations[0]?.value;
 
-          return (
-            <div key={locale.id} className="my-4 flex flex-col">
-              <label
-                htmlFor={locale.id}
-                className="mb-1 text-sm font-semibold uppercase"
-              >
-                {locale.name}
-              </label>
-              <input
-                type="text"
-                id={locale.id}
-                name={`locale.${locale.id}`}
-                defaultValue={translation}
-                placeholder={`Translation for ${locale.name}`}
-                className="rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              />
-            </div>
-          );
-        })}
-        <button
-          type="submit"
-          className="h-11 w-full rounded-lg bg-emerald-800 px-2 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-        >
-          Update
-        </button>
+            return (
+              <div key={locale.id} className="mb-4">
+                <label
+                  htmlFor={locale.id}
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  {locale.name}
+                </label>
+                <div className="relative mt-1 rounded-md shadow-sm">
+                  <input
+                    type="text"
+                    id={locale.id}
+                    name={`locale.${locale.id}`}
+                    defaultValue={translation}
+                    placeholder={`Translation for ${locale.name}`}
+                    className="block w-full rounded-md  border-gray-300 pr-10  shadow-sm  focus:border-indigo-500 focus:outline-none  focus:ring-indigo-500 sm:text-sm"
+                  />
+                </div>
+              </div>
+            );
+          })}
+          <button
+            type="submit"
+            className="inline-flex justify-center self-end rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
+          >
+            Update
+          </button>
+        </div>
       </Form>
     </div>
   );

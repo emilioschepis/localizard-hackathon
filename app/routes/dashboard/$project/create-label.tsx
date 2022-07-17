@@ -1,3 +1,4 @@
+import { ExclamationCircleIcon } from "@heroicons/react/outline";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
@@ -65,7 +66,10 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   if (existingLabel) {
     return badRequest<ActionData>({
-      formError: "a label with this key already exists",
+      fieldErrors: {
+        key: "a label with this key already exists",
+        description: undefined,
+      },
       fields,
     });
   }
@@ -79,95 +83,116 @@ export default function CreateProjectRoute() {
   const action = useActionData<ActionData>();
 
   return (
-    <div>
-      <h2 className="mb-2 text-2xl font-bold">Create label</h2>
-      {action?.formError ? (
-        <p
-          role="alert"
-          className="my-2 rounded-lg bg-red-600 px-4 py-2 font-semibold text-white"
-        >
-          {action.formError}
-        </p>
-      ) : null}
+    <div className="py-4">
+      <div className="mb-2 sm:flex sm:items-center">
+        <div className="sm:flex-auto">
+          <h2 className="text-xl font-semibold text-gray-900">Create label</h2>
+        </div>
+      </div>
       <Form method="post">
-        <div className="mb-4 flex flex-col">
-          <label htmlFor="key" className="mb-1 text-sm font-semibold uppercase">
-            Label key
-          </label>
-          <input
-            type="text"
-            id="key"
-            name="key"
-            pattern="^[a-z-_]+(?:\.[a-z-_]+)*$"
-            required
-            defaultValue={action?.fields.key}
-            aria-invalid={Boolean(action?.fieldErrors?.key)}
-            aria-errormessage={
-              action?.fieldErrors?.key ? "key-error" : undefined
-            }
-            placeholder="your.key.name"
-            className={`rounded-lg focus:outline-emerald-500 ${
-              action?.fieldErrors?.key
-                ? "ring-2 ring-red-600 focus:ring-red-600"
-                : ""
-            }`}
-          />
-          <p className="mt-1 text-sm text-gray-700">
-            Use lowercase letters, underscores and dashes, separated by dots
-          </p>
-          {action?.fieldErrors?.key ? (
-            <p
-              id="key-error"
-              role="alert"
-              className="mt-2 font-semibold text-red-600"
+        <div className="flex flex-col space-y-2">
+          <div>
+            <label
+              htmlFor="key"
+              className="block text-sm font-medium text-gray-700"
             >
-              {action.fieldErrors.key}
+              Key
+            </label>
+            <div className="relative mt-1 rounded-md shadow-sm">
+              <input
+                type="text"
+                name="key"
+                id="key"
+                required
+                pattern="^[a-z-_]+(?:\.[a-z-_]+)*$"
+                className={`block w-full rounded-md  border-gray-300 pr-10  shadow-sm  focus:border-indigo-500 focus:outline-none  focus:ring-indigo-500 sm:text-sm ${
+                  action?.fieldErrors?.key
+                    ? "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500"
+                    : ""
+                }`}
+                placeholder="your.key.string"
+                defaultValue={action?.fields.key}
+                aria-invalid={Boolean(action?.fieldErrors?.key)}
+                aria-describedby="key-description"
+                aria-errormessage={
+                  action?.fieldErrors?.key ? "key-error" : undefined
+                }
+              />
+              {action?.fieldErrors?.key ? (
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                  <ExclamationCircleIcon
+                    className="h-5 w-5 text-red-500"
+                    aria-hidden="true"
+                  />
+                </div>
+              ) : null}
+            </div>
+            {action?.fieldErrors?.key ? (
+              <p className="mt-2 text-sm text-red-600" id="key-error">
+                {action.fieldErrors.key}
+              </p>
+            ) : null}
+            <p className="mt-2 text-sm text-gray-500" id="key-description">
+              Use lowercase letters, underscores and dashes, separated by dots
             </p>
-          ) : null}
-        </div>
-        <div className="mb-4 flex flex-col">
-          <label
-            htmlFor="description"
-            className="mb-1 text-sm font-semibold uppercase"
+          </div>
+          <div>
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Description
+            </label>
+            <div className="relative mt-1 rounded-md shadow-sm">
+              <input
+                type="text"
+                name="description"
+                id="description"
+                className={`block w-full rounded-md  border-gray-300 pr-10  shadow-sm  focus:border-indigo-500 focus:outline-none  focus:ring-indigo-500 sm:text-sm ${
+                  action?.fieldErrors?.description
+                    ? "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500"
+                    : ""
+                }`}
+                placeholder="This label is used..."
+                defaultValue={action?.fields.description}
+                aria-invalid={Boolean(action?.fieldErrors?.description)}
+                aria-describedby="description-description"
+                aria-errormessage={
+                  action?.fieldErrors?.description
+                    ? "description-error"
+                    : undefined
+                }
+              />
+              {action?.fieldErrors?.description ? (
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                  <ExclamationCircleIcon
+                    className="h-5 w-5 text-red-500"
+                    aria-hidden="true"
+                  />
+                </div>
+              ) : null}
+            </div>
+            {action?.fieldErrors?.description ? (
+              <p className="mt-2 text-sm text-red-600" id="description-error">
+                {action.fieldErrors.key}
+              </p>
+            ) : null}
+            <p
+              className="mt-2 text-sm text-gray-500"
+              id="description-description"
+            >
+              Optionally describe how the label is used inside the project to
+              simplify the creation of translations{" "}
+            </p>
+          </div>
+
+          <button
+            type="submit"
+            className="inline-flex justify-center self-end rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
           >
-            Label description (optional)
-          </label>
-          <input
-            type="text"
-            id="description"
-            name="description"
-            defaultValue={action?.fields.description}
-            aria-invalid={Boolean(action?.fieldErrors?.description)}
-            aria-errormessage={
-              action?.fieldErrors?.description ? "description-error" : undefined
-            }
-            placeholder="This label is used..."
-            className={`rounded-lg focus:outline-emerald-500 ${
-              action?.fieldErrors?.key
-                ? "ring-2 ring-red-600 focus:ring-red-600"
-                : ""
-            }`}
-          />
-          <p className="mt-1 text-sm text-gray-700">
-            Optionally describe how the label is used inside the project to
-            simplify the creation of translations
-          </p>
-          {action?.fieldErrors?.description ? (
-            <p
-              id="description-error"
-              role="alert"
-              className="mt-2 font-semibold text-red-600"
-            >
-              {action.fieldErrors.description}
-            </p>
-          ) : null}
+            Create
+          </button>
         </div>
-        <button
-          type="submit"
-          className="h-11 w-full rounded-lg bg-emerald-800 px-2 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-        >
-          Create
-        </button>
       </Form>
     </div>
   );

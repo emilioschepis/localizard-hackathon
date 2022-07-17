@@ -1,3 +1,4 @@
+import { ExclamationCircleIcon } from "@heroicons/react/outline";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
@@ -65,66 +66,75 @@ export default function CreateProjectRoute() {
   }, [action?.fieldErrors?.name]);
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold">Create project</h1>
-      {action?.formError ? (
-        <p
-          role="alert"
-          className="my-2 rounded-lg bg-red-600 px-4 py-2 font-semibold text-white"
-        >
-          {action.formError}
-        </p>
-      ) : null}
-      <Form method="post">
-        <div className="my-2 flex flex-col">
-          <label
-            htmlFor="name"
-            className="mb-1 text-sm font-semibold uppercase"
-          >
-            Project name
-          </label>
-          <input
-            ref={nameRef}
-            type="text"
-            id="name"
-            name="name"
-            required
-            minLength={3}
-            pattern="^[a-z0-9-]{3,}$"
-            defaultValue={action?.fields.name}
-            aria-invalid={Boolean(action?.fieldErrors?.name)}
-            aria-errormessage={
-              action?.fieldErrors?.name ? "name-error" : undefined
-            }
-            placeholder="my-project"
-            className={`rounded-lg focus:outline-emerald-500 ${
-              action?.fieldErrors?.name
-                ? "ring-2 ring-red-600 focus:ring-red-600"
-                : ""
-            }`}
-          />
-          {action?.fieldErrors?.name ? (
-            <p
-              id="name-error"
-              role="alert"
-              className="mt-2 font-semibold text-red-600"
-            >
-              {action.fieldErrors.name}
-            </p>
-          ) : null}
-
-          <p className="font-sm mt-2 italic text-gray-800">
-            Use at least three lowercase letters, numbers, and dashes. You
-            won&apos;t be able to change it later.
-          </p>
+    <div className="py-6">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+        <div className="sm:flex sm:items-center">
+          <div className="sm:flex-auto">
+            <h1 className="text-2xl font-semibold text-gray-900">
+              Create project
+            </h1>
+          </div>
         </div>
-        <button
-          type="submit"
-          className="h-11 w-full rounded-lg bg-emerald-800 px-2 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-emerald-700 focus:outline-emerald-500"
-        >
-          Create
-        </button>
-      </Form>
+      </div>
+      <div className="mx-auto my-6 max-w-7xl px-4 sm:px-6 md:px-8">
+        <Form method="post">
+          <div className="flex flex-col">
+            <div className="mb-4">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Name
+              </label>
+              <div className="relative mt-1 rounded-md shadow-sm">
+                <input
+                  type="text"
+                  name="name"
+                  id="name"
+                  required
+                  minLength={3}
+                  pattern="^[a-z0-9-]{3,}$"
+                  className={`block w-full rounded-md  border-gray-300 pr-10  shadow-sm  focus:border-indigo-500 focus:outline-none  focus:ring-indigo-500 sm:text-sm ${
+                    action?.fieldErrors?.name
+                      ? "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500"
+                      : ""
+                  }`}
+                  placeholder="my-project"
+                  defaultValue={action?.fields.name}
+                  aria-invalid={Boolean(action?.fieldErrors?.name)}
+                  aria-describedby="name-description"
+                  aria-errormessage={
+                    action?.fieldErrors?.name ? "name-error" : undefined
+                  }
+                />
+                {action?.fieldErrors?.name ? (
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                    <ExclamationCircleIcon
+                      className="h-5 w-5 text-red-500"
+                      aria-hidden="true"
+                    />
+                  </div>
+                ) : null}
+              </div>
+              {action?.fieldErrors?.name ? (
+                <p className="mt-2 text-sm text-red-600" id="name-error">
+                  {action.fieldErrors.name}
+                </p>
+              ) : null}
+              <p className="mt-2 text-sm text-gray-500" id="name-description">
+                Use at least three lowercase letters, numbers, and dashes. You
+                won&apos;t be able to change it later.
+              </p>
+            </div>
+            <button
+              type="submit"
+              className="inline-flex justify-center self-end rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
+            >
+              Create
+            </button>
+          </div>
+        </Form>
+      </div>
     </div>
   );
 }
