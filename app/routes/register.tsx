@@ -1,5 +1,6 @@
+import { ExclamationCircleIcon } from "@heroicons/react/outline";
 import type { ActionFunction } from "@remix-run/node";
-import { Form, useActionData, useSearchParams } from "@remix-run/react";
+import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 
 import { register } from "~/lib/auth.server";
 import { db } from "~/lib/db.server";
@@ -53,104 +54,125 @@ export default function RegisterRoute() {
   const [searchParams] = useSearchParams();
 
   return (
-    <div className="flex h-screen items-start justify-center bg-gray-100 p-4">
-      <div className="rounded-lg bg-white p-4">
-        <h1 className="mb-1 text-xl font-bold">Register</h1>
-        <p className="mb-2 text-sm text-gray-700">
-          Welcome to Localizard.
-          <br />
-          Create an account now and start working on your localization labels.
+    <div className="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Create a new account
+        </h2>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          Or{" "}
+          <Link
+            to="/login"
+            className="font-medium text-emerald-600 hover:text-emerald-500"
+          >
+            Sign in to your account
+          </Link>
         </p>
-        {action?.formError ? (
-          <p
-            role="alert"
-            className="my-2 rounded-lg bg-red-600 px-4 py-2 font-semibold text-white"
-          >
-            {action.formError}
-          </p>
-        ) : null}
-        <Form method="post">
-          <input
-            type="hidden"
-            id="redirectTo"
-            name="redirectTo"
-            value={searchParams.get("redirectTo") ?? undefined}
-          />
-          <div className="mb-4 flex flex-col">
-            <label
-              htmlFor="email"
-              className="mb-1 text-sm font-semibold uppercase"
-            >
-              Email
-            </label>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <Form className="space-y-6" method="post">
             <input
-              type="email"
-              id="email"
-              name="email"
-              autoComplete="username"
-              defaultValue={action?.fields.email}
-              aria-invalid={Boolean(action?.fieldErrors?.email)}
-              aria-errormessage={
-                action?.fieldErrors?.email ? "email-error" : undefined
-              }
-              className={`rounded-lg focus:outline-emerald-600 ${
-                action?.fieldErrors?.email
-                  ? "ring-2 ring-red-600 focus:ring-red-600"
-                  : ""
-              }`}
-              placeholder="you@email.com"
+              type="hidden"
+              id="redirectTo"
+              name="redirectTo"
+              value={searchParams.get("redirectTo") ?? undefined}
             />
-            {action?.fieldErrors?.email ? (
-              <p
-                id="email-error"
-                role="alert"
-                className="mt-2 font-semibold text-red-600"
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
               >
-                {action.fieldErrors.email}
-              </p>
-            ) : null}
-          </div>
-          <div className="mb-4 flex flex-col">
-            <label
-              htmlFor="password"
-              className="mb-1 text-sm font-semibold uppercase"
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              autoComplete="new-password"
-              defaultValue={action?.fields.password}
-              aria-invalid={Boolean(action?.fieldErrors?.password)}
-              aria-errormessage={
-                action?.fieldErrors?.password ? "password-error" : undefined
-              }
-              className={`rounded-lg focus:outline-emerald-600 ${
-                action?.fieldErrors?.password
-                  ? "ring-2 ring-red-600 focus:ring-red-600"
-                  : ""
-              }`}
-              placeholder="your password"
-            />
-            {action?.fieldErrors?.password ? (
-              <p
-                id="password-error"
-                role="alert"
-                className="mt-2 font-semibold text-red-600"
+                Email
+              </label>
+              <div className="relative mt-1 rounded-md shadow-sm">
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  required
+                  autoComplete="email"
+                  className={`block w-full rounded-md  border-gray-300 pr-10  shadow-sm  focus:border-emerald-600 focus:outline-none  focus:ring-emerald-600 sm:text-sm ${
+                    action?.fieldErrors?.email
+                      ? "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500"
+                      : ""
+                  }`}
+                  placeholder="you@email.com"
+                  defaultValue={action?.fields.email}
+                  aria-invalid={Boolean(action?.fieldErrors?.email)}
+                  aria-errormessage={
+                    action?.fieldErrors?.email ? "email-error" : undefined
+                  }
+                />
+                {action?.fieldErrors?.email ? (
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                    <ExclamationCircleIcon
+                      className="h-5 w-5 text-red-500"
+                      aria-hidden="true"
+                    />
+                  </div>
+                ) : null}
+              </div>
+              {action?.fieldErrors?.email ? (
+                <p className="mt-2 text-sm text-red-600" id="email-error">
+                  {action.fieldErrors.email}
+                </p>
+              ) : null}
+            </div>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
               >
-                {action.fieldErrors.password}
-              </p>
-            ) : null}
-          </div>
-          <button
-            type="submit"
-            className="h-11 w-full rounded-lg bg-emerald-800 px-2 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-emerald-700 focus:outline-emerald-600"
-          >
-            Register
-          </button>
-        </Form>
+                Password
+              </label>
+              <div className="relative mt-1 rounded-md shadow-sm">
+                <input
+                  type="password"
+                  name="password"
+                  id="password"
+                  required
+                  autoComplete="new-password"
+                  className={`block w-full rounded-md  border-gray-300 pr-10  shadow-sm  focus:border-emerald-600 focus:outline-none  focus:ring-emerald-600 sm:text-sm ${
+                    action?.fieldErrors?.password
+                      ? "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500"
+                      : ""
+                  }`}
+                  placeholder="a secure password"
+                  defaultValue={action?.fields.password}
+                  aria-invalid={Boolean(action?.fieldErrors?.password)}
+                  aria-errormessage={
+                    action?.fieldErrors?.password ? "password-error" : undefined
+                  }
+                />
+                {action?.fieldErrors?.password ? (
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                    <ExclamationCircleIcon
+                      className="h-5 w-5 text-red-500"
+                      aria-hidden="true"
+                    />
+                  </div>
+                ) : null}
+              </div>
+              {action?.fieldErrors?.password ? (
+                <p className="mt-2 text-sm text-red-600" id="password-error">
+                  {action.fieldErrors.password}
+                </p>
+              ) : null}
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                className="flex w-full justify-center rounded-md border border-transparent bg-emerald-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+              >
+                Register
+              </button>
+            </div>
+          </Form>
+        </div>
       </div>
     </div>
   );

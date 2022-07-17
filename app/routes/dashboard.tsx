@@ -1,20 +1,33 @@
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { FolderIcon, MenuAlt2Icon, XIcon } from "@heroicons/react/outline";
-import { NavLink, Outlet } from "@remix-run/react";
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Form, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import { Fragment, useState } from "react";
 
+import { db } from "~/lib/db.server";
+import { requireUserId } from "~/lib/session.server";
 import { classNames } from "~/utils/style";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: FolderIcon },
 ];
-const userNavigation = [
-  { name: "Your Profile", href: "#" },
-  { name: "Settings", href: "#" },
-  { name: "Sign out", href: "#" },
-];
+
+type LoaderData = {
+  email: string;
+};
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const userId = await requireUserId(request);
+  const user = await db.user.findUniqueOrThrow({ where: { id: userId } });
+
+  return json<LoaderData>({
+    email: user.email,
+  });
+};
 
 export default function DashboardRoute() {
+  const data = useLoaderData<LoaderData>();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -184,11 +197,11 @@ export default function DashboardRoute() {
                   <div>
                     <Menu.Button className="flex max-w-xs items-center rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2">
                       <span className="sr-only">Open user menu</span>
-                      <img
-                        className="h-8 w-8 rounded-full"
-                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                        alt=""
-                      />
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-300">
+                        <p aria-hidden className="text-xl font-black uppercase">
+                          {data.email[0]}
+                        </p>
+                      </div>
                     </Menu.Button>
                   </div>
                   <Transition
@@ -201,21 +214,21 @@ export default function DashboardRoute() {
                     leaveTo="transform opacity-0 scale-95"
                   >
                     <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                      {userNavigation.map((item) => (
-                        <Menu.Item key={item.name}>
-                          {({ active }) => (
-                            <NavLink
-                              to={item.href}
+                      <Menu.Item>
+                        {({ active }) => (
+                          <Form method="post" action="/logout">
+                            <button
+                              type="submit"
                               className={classNames(
                                 active ? "bg-gray-100" : "",
-                                "block px-4 py-2 text-sm text-gray-700"
+                                "block w-full px-4 py-2 text-sm text-gray-700"
                               )}
                             >
-                              {item.name}
-                            </NavLink>
-                          )}
-                        </Menu.Item>
-                      ))}
+                              Sign out
+                            </button>
+                          </Form>
+                        )}
+                      </Menu.Item>
                     </Menu.Items>
                   </Transition>
                 </Menu>
