@@ -3,9 +3,11 @@ import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { v4 as uuid } from "uuid";
 
 import { db } from "~/lib/db.server";
+import i18next from "~/lib/i18n.server";
 import { requireUserId } from "~/lib/session.server";
 import { createProject } from "~/models/project.server";
 import type { FormActionData } from "~/types/types";
@@ -21,6 +23,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export const action: ActionFunction = async ({ request }) => {
+  const t = await i18next.getFixedT(request);
   const userId = await requireUserId(request);
   const form = await request.formData();
 
@@ -28,14 +31,14 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (typeof name !== "string") {
     return badRequest<ActionData>({
-      formError: "invalid form data",
+      formError: t("error.invalid_form_data"),
       fields: { name: "" },
     });
   }
 
   const fields = { name };
   const fieldErrors = {
-    name: validateProjectName(name),
+    name: t(validateProjectName(name) ?? ""),
   };
 
   if (Object.values(fieldErrors).some(Boolean)) {
@@ -45,7 +48,7 @@ export const action: ActionFunction = async ({ request }) => {
   const existingProject = await db.project.findFirst({ where: { name } });
   if (existingProject) {
     return badRequest<ActionData>({
-      fieldErrors: { name: "a project with this name already exists" },
+      fieldErrors: { name: t("error.project_already_exists") },
       fields,
     });
   }
@@ -56,6 +59,7 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function CreateProjectRoute() {
+  const { t } = useTranslation();
   const action = useActionData<ActionData>();
   const nameRef = useRef<HTMLInputElement>(null);
 
@@ -71,7 +75,7 @@ export default function CreateProjectRoute() {
         <div className="sm:flex sm:items-center">
           <div className="sm:flex-auto">
             <h1 className="text-2xl font-semibold text-gray-900">
-              Create project
+              {t("page.create_project.title")}
             </h1>
           </div>
         </div>
@@ -84,7 +88,7 @@ export default function CreateProjectRoute() {
                 htmlFor="name"
                 className="block text-sm font-medium text-gray-700"
               >
-                Name
+                {t("form.label.project_name")}
               </label>
               <div className="relative mt-1 rounded-md shadow-sm">
                 <input
@@ -122,15 +126,14 @@ export default function CreateProjectRoute() {
                 </p>
               ) : null}
               <p className="mt-2 text-sm text-gray-500" id="name-description">
-                Use at least three lowercase letters, numbers, and dashes. You
-                won&apos;t be able to change it later.
+                {t("form.hint.project_name")}
               </p>
             </div>
             <button
               type="submit"
               className="inline-flex justify-center self-end rounded-md border border-transparent bg-emerald-700 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
             >
-              Create
+              {t("page.create_project.cta")}
             </button>
           </div>
         </Form>

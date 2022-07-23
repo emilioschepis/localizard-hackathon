@@ -4,6 +4,9 @@ import it from "~/locales/it.json";
 export default {
   supportedLngs: ["en", "it"],
   fallbackLng: "en",
+  interpolation: {
+    escapeValue: false, // not needed for react as it escapes by default
+  },
   resources: {
     en: {
       translation: en.project.translations,

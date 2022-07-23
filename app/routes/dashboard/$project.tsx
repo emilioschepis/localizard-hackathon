@@ -1,6 +1,7 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { NavLink, Outlet, useLoaderData, useNavigate } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 
 import { db } from "~/lib/db.server";
 import { requireUserId } from "~/lib/session.server";
@@ -40,6 +41,7 @@ const tabs = [
 ];
 
 export default function ProjectRoute() {
+  const { t } = useTranslation();
   const data = useLoaderData<LoaderData>();
   const navigate = useNavigate();
 
@@ -55,7 +57,7 @@ export default function ProjectRoute() {
           <div className="mt-3 sm:mt-4">
             <div className="sm:hidden">
               <label htmlFor="current-tab" className="sr-only">
-                Select a tab
+                {t("accessibility.select_tab")}
               </label>
               <select
                 id="current-tab"

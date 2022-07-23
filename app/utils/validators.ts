@@ -11,7 +11,7 @@ export function validateEmail(email: unknown) {
 
 export function validatePassword(password: unknown) {
   if (typeof password !== "string") {
-    return "error.validation.password_valid";
+    return "error.validation.password_string";
   }
 
   if (password.length < 6) {
@@ -21,17 +21,17 @@ export function validatePassword(password: unknown) {
 
 export function validateProjectName(name: unknown) {
   if (typeof name !== "string") {
-    return "project name must be a string";
+    return "error.validation.project_name_string";
   }
 
   if (name.length < 3) {
-    return "project name is too short";
+    return "error.validation.project_name_length";
   }
 
   const expression = /^[a-z0-9-]{3,}$/;
 
   if (!expression.test(name)) {
-    return "project name must be lowercase letters, numbers, and dashes";
+    return "error.validation.project_name_valid";
   }
 }
 
