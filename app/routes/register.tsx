@@ -42,7 +42,10 @@ export const action: ActionFunction = async ({ request }) => {
   const existingUser = await db.user.findFirst({ where: { email } });
   if (existingUser) {
     return badRequest<ActionData>({
-      formError: t("error.auth.already_registered"),
+      fieldErrors: {
+        email: t("error.auth.already_registered"),
+        password: undefined,
+      },
       fields,
     });
   }
@@ -172,7 +175,7 @@ export default function RegisterRoute() {
                 type="submit"
                 className="flex w-full justify-center rounded-md border border-transparent bg-emerald-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
               >
-                Register
+                {t("auth.register.cta")}
               </button>
             </div>
           </Form>
