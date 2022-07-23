@@ -1,6 +1,7 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, Link, useLoaderData } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 
 import { db } from "~/lib/db.server";
 import { requireUserId } from "~/lib/session.server";
@@ -70,15 +71,18 @@ export const loader: LoaderFunction = async ({ params }) => {
 };
 
 export default function LocalesRoute() {
+  const { t } = useTranslation();
   const data = useLoaderData<LoaderData>();
 
   return (
     <div className="py-4">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h2 className="text-xl font-semibold text-gray-900">Locales</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            {t("page.project.locales.title")}
+          </h2>
           <p className="mt-2 text-sm text-gray-700">
-            A list of all the languages available in the project.
+            {t("page.project.locales.description")}
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
@@ -87,7 +91,7 @@ export default function LocalesRoute() {
             type="button"
             className="inline-flex items-center justify-center rounded-md border border-transparent bg-emerald-700 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 sm:w-auto"
           >
-            Create locale
+            {t("page.project.locales.create_locale_cta")}
           </Link>
         </div>
       </div>
@@ -102,25 +106,25 @@ export default function LocalesRoute() {
                       scope="col"
                       className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
                     >
-                      Name
+                      {t("page.project.locales.name_column")}
                     </th>
                     <th
                       scope="col"
                       className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                     >
-                      Translated labels
+                      {t("page.project.locales.translations_column")}
                     </th>
                     <th
                       scope="col"
                       className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                     >
-                      Last updated
+                      {t("page.project.locales.last_update_column")}
                     </th>
                     <th
                       scope="col"
                       className="relative py-3.5 pl-3 pr-4 sm:pr-6"
                     >
-                      <span className="sr-only">Edit</span>
+                      <span className="sr-only">{t("generic.edit")}</span>
                     </th>
                   </tr>
                 </thead>
@@ -148,7 +152,7 @@ export default function LocalesRoute() {
                               to={locale.name}
                               className="text-emerald-700 hover:text-emerald-900"
                             >
-                              Edit
+                              {t("generic.edit")}
                               <span className="sr-only">, {locale.name}</span>
                             </Link>
                             <Form method="post">
@@ -163,7 +167,7 @@ export default function LocalesRoute() {
                                 value={locale.id}
                               />
                               <button type="submit" className="text-red-600">
-                                Delete
+                                {t("generic.delete")}
                                 <span className="sr-only">, {locale.name}</span>
                               </button>
                             </Form>

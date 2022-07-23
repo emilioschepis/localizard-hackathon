@@ -2,8 +2,10 @@ import { ExclamationCircleIcon } from "@heroicons/react/outline";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 
 import { db } from "~/lib/db.server";
+import i18next from "~/lib/i18n.server";
 import { requireUserId } from "~/lib/session.server";
 import { getProject } from "~/models/project.server";
 import type { FormActionData } from "~/types/types";
@@ -24,6 +26,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
+  const t = await i18next.getFixedT(request);
   const userId = await requireUserId(request);
   const form = await request.formData();
 
@@ -31,7 +34,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   if (typeof name !== "string") {
     return badRequest<ActionData>({
-      formError: "invalid form data",
+      formError: t("error.invalid_form_data"),
       fields: { name: "" },
     });
   }
@@ -44,7 +47,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const fields = { name };
   const fieldErrors = {
-    name: validateLocaleName(name),
+    name: t(validateLocaleName(name) ?? ""),
   };
 
   if (Object.values(fieldErrors).some(Boolean)) {
@@ -58,7 +61,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (existingLocale) {
     return badRequest<ActionData>({
       fieldErrors: {
-        name: "a locale with this name already exists",
+        name: t("error.locale_already_exists"),
       },
       fields,
     });
@@ -70,13 +73,16 @@ export const action: ActionFunction = async ({ request, params }) => {
 };
 
 export default function CreateProjectRoute() {
+  const { t } = useTranslation();
   const action = useActionData<ActionData>();
 
   return (
     <div className="py-4">
       <div className="mb-2 sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h2 className="text-xl font-semibold text-gray-900">Create locale</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            {t("page.create_locale.title")}
+          </h2>
         </div>
       </div>
       <Form method="post">
@@ -86,7 +92,7 @@ export default function CreateProjectRoute() {
               htmlFor="name"
               className="block text-sm font-medium text-gray-700"
             >
-              Name
+              {t("form.label.locale_name")}
             </label>
             <div className="relative mt-1 rounded-md shadow-sm">
               <input
@@ -100,7 +106,7 @@ export default function CreateProjectRoute() {
                     ? "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500"
                     : ""
                 }`}
-                placeholder="en-gb"
+                placeholder={t("form.placeholder.locale_name")}
                 defaultValue={action?.fields.name}
                 aria-invalid={Boolean(action?.fieldErrors?.name)}
                 aria-describedby="name-description"
@@ -123,14 +129,14 @@ export default function CreateProjectRoute() {
               </p>
             ) : null}
             <p className="mt-2 text-sm text-gray-500" id="name-description">
-              Use lowercase letters, underscores and dashes
+              {t("form.hint.locale_name")}
             </p>
           </div>
           <button
             type="submit"
             className="inline-flex justify-center self-end rounded-md border border-transparent bg-emerald-700 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
           >
-            Create
+            {t("page.create_locale.cta")}
           </button>
         </div>
       </Form>

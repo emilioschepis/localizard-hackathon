@@ -55,12 +55,12 @@ export function validateLabelDescription(description: unknown) {
 
 export function validateLocaleName(name: unknown) {
   if (typeof name !== "string") {
-    return "locale name must be a string";
+    return "error.validation.locale_name_string";
   }
 
   const expression = /^[a-z-_]+$/;
 
   if (!expression.test(name)) {
-    return "locale name must be lowercase letters, underscores and dashes";
+    return "error.validation.locale_name_valid";
   }
 }
