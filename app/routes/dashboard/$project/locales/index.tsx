@@ -148,13 +148,6 @@ export default function LocalesRoute() {
                         </td>
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                           <div className="flex items-center justify-end gap-2">
-                            <Link
-                              to={locale.name}
-                              className="text-emerald-700 hover:text-emerald-900"
-                            >
-                              {t("generic.edit")}
-                              <span className="sr-only">, {locale.name}</span>
-                            </Link>
                             <Form method="post">
                               <input
                                 type="hidden"
