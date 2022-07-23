@@ -1,7 +1,8 @@
+import { PencilIcon } from "@heroicons/react/outline";
 import type { PrismaPromise } from "@prisma/client";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
+import { Form, Link, useLoaderData } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 
 import { db } from "~/lib/db.server";
@@ -135,9 +136,17 @@ export default function LabelRoute() {
     <div className="py-4">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h2 className="text-xl font-semibold text-gray-900">
-            {data.label.key}
-          </h2>
+          <div className="flex items-center">
+            <h2 className="text-xl font-semibold text-gray-900">
+              {data.label.key}
+            </h2>
+            <Link to="edit" type="button" className="ml-2">
+              <PencilIcon
+                className="h-5 w-5 text-emerald-700"
+                aria-label={t("accessibility.edit_label")}
+              />
+            </Link>
+          </div>
           <p className="mt-2 text-sm text-gray-700">
             {data.label.description || (
               <span className="italic">
