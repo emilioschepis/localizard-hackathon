@@ -1,5 +1,6 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 
 import { db } from "~/lib/db.server";
 
@@ -44,15 +45,18 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export default function ProjectIndexRoute() {
+  const { t } = useTranslation();
   const data = useLoaderData<LoaderData>();
 
   return (
     <div className="py-4">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h2 className="text-xl font-semibold text-gray-900">Labels</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            {t("page.project.labels.title")}
+          </h2>
           <p className="mt-2 text-sm text-gray-700">
-            A list of all the labels available in the project.
+            {t("page.project.labels.description")}
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
@@ -61,7 +65,7 @@ export default function ProjectIndexRoute() {
             type="button"
             className="inline-flex items-center justify-center rounded-md border border-transparent bg-emerald-700 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 sm:w-auto"
           >
-            Create label
+            {t("page.project.labels.create_label_cta")}
           </Link>
         </div>
       </div>
@@ -76,25 +80,25 @@ export default function ProjectIndexRoute() {
                       scope="col"
                       className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
                     >
-                      Key
+                      {t("page.project.labels.key_column")}
                     </th>
                     <th
                       scope="col"
                       className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                     >
-                      Description
+                      {t("page.project.labels.description_column")}
                     </th>
                     <th
                       scope="col"
                       className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                     >
-                      Translations
+                      {t("page.project.labels.translations_column")}
                     </th>
                     <th
                       scope="col"
                       className="relative py-3.5 pl-3 pr-4 sm:pr-6"
                     >
-                      <span className="sr-only">Edit</span>
+                      <span className="sr-only">{t("generic.edit")}</span>
                     </th>
                   </tr>
                 </thead>
@@ -115,7 +119,8 @@ export default function ProjectIndexRoute() {
                           to={label.id}
                           className="text-emerald-700 hover:text-emerald-900"
                         >
-                          Edit<span className="sr-only">, {label.key}</span>
+                          {t("generic.edit")}
+                          <span className="sr-only">, {label.key}</span>
                         </Link>
                       </td>
                     </tr>

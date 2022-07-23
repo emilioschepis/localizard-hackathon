@@ -35,9 +35,9 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 const tabs = [
-  { name: "Labels", href: "." },
-  { name: "Locales", href: "locales" },
-  { name: "API", href: "api" },
+  { name: "page.project.labels.title", href: "." },
+  { name: "page.project.locales.title", href: "locales" },
+  { name: "page.project.api.title", href: "api" },
 ];
 
 export default function ProjectRoute() {
@@ -68,7 +68,7 @@ export default function ProjectRoute() {
               >
                 {tabs.map((tab) => (
                   <option key={tab.name} value={tab.href}>
-                    {tab.name}
+                    {t(tab.name)}
                   </option>
                 ))}
               </select>
@@ -89,7 +89,7 @@ export default function ProjectRoute() {
                       )
                     }
                   >
-                    {tab.name}
+                    {t(tab.name)}
                   </NavLink>
                 ))}
               </nav>

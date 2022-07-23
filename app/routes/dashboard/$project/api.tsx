@@ -9,6 +9,7 @@ import {
 import type { LoaderFunction } from "@remix-run/node";
 import { useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 
 import { db } from "~/lib/db.server";
 import { requireUserId } from "~/lib/session.server";
@@ -60,6 +61,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export default function ApiRoute() {
+  const { t } = useTranslation();
   const params = useParams();
   const data = useLoaderData<LoaderData>();
   const [show, setShow] = useState(false);
@@ -69,10 +71,11 @@ export default function ApiRoute() {
     <div className="py-4">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h2 className="text-xl font-semibold text-gray-900">API</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            {t("page.project.api.title")}
+          </h2>
           <p className="mt-2 text-sm text-gray-700">
-            Use the credentials displayed in this page to access Localizard's
-            REST API.
+            {t("page.project.api.description")}
           </p>
         </div>
       </div>
@@ -102,7 +105,7 @@ export default function ApiRoute() {
             ) : (
               <EyeIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
             )}
-            <span>{show ? "Hide" : "Show"}</span>
+            <span>{show ? t("generic.hide") : t("generic.show")}</span>
           </button>
         </div>
         <div>
@@ -114,8 +117,11 @@ export default function ApiRoute() {
                 <LockClosedIcon aria-hidden className="h-5 w-5 text-gray-700" />
               )}
               <Switch.Label className="mx-2 text-gray-700">
-                Project is currently{" "}
-                {data.key.project.public ? "public" : "private"}
+                {t("page.project.api.project_status", {
+                  status: data.key.project.public
+                    ? t("generic.public")
+                    : t("generic.private"),
+                })}
               </Switch.Label>
               <Switch
                 disabled={fetcher.state !== "idle"}
@@ -145,21 +151,26 @@ export default function ApiRoute() {
       </div>
       <div className="mt-4 sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h2 className="text-xl font-semibold text-gray-900">How to use</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            {t("page.project.api.how_to_use.title")}
+          </h2>
           <p className="mt-2 text-sm text-gray-700">
-            These are the endpoints you can use to retrieve the labels in your
-            projects. You need to set the <code>X-Api-Key</code> header with the
-            key above.
+            <Trans
+              i18nKey={t("page.project.api.how_to_use.description")}
+              components={{ code: <code /> }}
+            />
           </p>
 
-          <h3 className="mt-4 text-lg">Retrieve all languages</h3>
+          <h3 className="mt-4 text-lg">{t("page.project.api.retrieve_all")}</h3>
           <p className="mt-1 text-gray-700">
             <code>
               GET {data.baseUrl}/api/v1/projects/{params.project}
             </code>
           </p>
 
-          <h3 className="mt-4 text-lg">Retrieve specific language</h3>
+          <h3 className="mt-4 text-lg">
+            {t("page.project.api.retrieve_language")}
+          </h3>
           <p className="mt-1 text-gray-700">
             <code>
               GET {data.baseUrl}/api/v1/projects/{params.project}/

@@ -2,6 +2,7 @@ import type { PrismaPromise } from "@prisma/client";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 
 import { db } from "~/lib/db.server";
 import { requireUserId } from "~/lib/session.server";
@@ -127,6 +128,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export default function LabelRoute() {
+  const { t } = useTranslation();
   const data = useLoaderData<LoaderData>();
 
   return (
@@ -138,7 +140,9 @@ export default function LabelRoute() {
           </h2>
           <p className="mt-2 text-sm text-gray-700">
             {data.label.description || (
-              <span className="italic">no description</span>
+              <span className="italic">
+                {t("page.project.label.no_description")}
+              </span>
             )}
           </p>
         </div>
@@ -163,7 +167,10 @@ export default function LabelRoute() {
                     id={locale.id}
                     name={`locale.${locale.id}`}
                     defaultValue={translation}
-                    placeholder={`Translation for ${locale.name}`}
+                    placeholder={t(
+                      "page.project.label.translation_placeholder",
+                      { locale: locale.name }
+                    )}
                     className="block w-full rounded-md  border-gray-300 pr-10  shadow-sm  focus:border-emerald-600 focus:outline-none  focus:ring-emerald-600 sm:text-sm"
                   />
                 </div>
@@ -174,7 +181,7 @@ export default function LabelRoute() {
             type="submit"
             className="inline-flex justify-center self-end rounded-md border border-transparent bg-emerald-700 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
           >
-            Update
+            {t("page.project.label.update_cta")}
           </button>
         </div>
       </Form>

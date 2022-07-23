@@ -2,8 +2,10 @@ import { ExclamationCircleIcon } from "@heroicons/react/outline";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 
 import { db } from "~/lib/db.server";
+import i18next from "~/lib/i18n.server";
 import { requireUserId } from "~/lib/session.server";
 import { createLabel } from "~/models/label.server";
 import { getProject } from "~/models/project.server";
@@ -26,6 +28,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
+  const t = await i18next.getFixedT(request);
   const userId = await requireUserId(request);
   const form = await request.formData();
 
@@ -37,7 +40,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     (typeof description !== "undefined" && typeof description !== "string")
   ) {
     return badRequest<ActionData>({
-      formError: "invalid form data",
+      formError: t("error.invalid_form_data"),
       fields: { key: "", description: "" },
     });
   }
@@ -50,9 +53,9 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const fields = { key, description };
   const fieldErrors = {
-    key: validateLabelKey(key),
+    key: t(validateLabelKey(key) ?? ""),
     description: description
-      ? validateLabelDescription(description)
+      ? t(validateLabelDescription(description) ?? "")
       : undefined,
   };
 
@@ -67,7 +70,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (existingLabel) {
     return badRequest<ActionData>({
       fieldErrors: {
-        key: "a label with this key already exists",
+        key: t("error.label_already_exists"),
         description: undefined,
       },
       fields,
@@ -80,13 +83,16 @@ export const action: ActionFunction = async ({ request, params }) => {
 };
 
 export default function CreateProjectRoute() {
+  const { t } = useTranslation();
   const action = useActionData<ActionData>();
 
   return (
     <div className="py-4">
       <div className="mb-2 sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h2 className="text-xl font-semibold text-gray-900">Create label</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            {t("page.create_label.title")}
+          </h2>
         </div>
       </div>
       <Form method="post">
@@ -96,7 +102,7 @@ export default function CreateProjectRoute() {
               htmlFor="key"
               className="block text-sm font-medium text-gray-700"
             >
-              Key
+              {t("form.label.label_key")}
             </label>
             <div className="relative mt-1 rounded-md shadow-sm">
               <input
@@ -110,7 +116,7 @@ export default function CreateProjectRoute() {
                     ? "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500"
                     : ""
                 }`}
-                placeholder="your.key.string"
+                placeholder={t("form.placeholder.label_key")}
                 defaultValue={action?.fields.key}
                 aria-invalid={Boolean(action?.fieldErrors?.key)}
                 aria-describedby="key-description"
@@ -133,7 +139,7 @@ export default function CreateProjectRoute() {
               </p>
             ) : null}
             <p className="mt-2 text-sm text-gray-500" id="key-description">
-              Use lowercase letters, underscores and dashes, separated by dots
+              {t("form.hint.label_key")}
             </p>
           </div>
           <div>
@@ -141,7 +147,7 @@ export default function CreateProjectRoute() {
               htmlFor="description"
               className="block text-sm font-medium text-gray-700"
             >
-              Description
+              {t("form.label.label_description")}
             </label>
             <div className="relative mt-1 rounded-md shadow-sm">
               <input
@@ -153,7 +159,7 @@ export default function CreateProjectRoute() {
                     ? "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500"
                     : ""
                 }`}
-                placeholder="This label is used..."
+                placeholder={t("form.placeholder.label_description")}
                 defaultValue={action?.fields.description}
                 aria-invalid={Boolean(action?.fieldErrors?.description)}
                 aria-describedby="description-description"
@@ -181,8 +187,7 @@ export default function CreateProjectRoute() {
               className="mt-2 text-sm text-gray-500"
               id="description-description"
             >
-              Optionally describe how the label is used inside the project to
-              simplify the creation of translations{" "}
+              {t("form.hint.label_description")}
             </p>
           </div>
 
@@ -190,7 +195,7 @@ export default function CreateProjectRoute() {
             type="submit"
             className="inline-flex justify-center self-end rounded-md border border-transparent bg-emerald-700 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
           >
-            Create
+            {t("page.create_label.cta")}
           </button>
         </div>
       </Form>

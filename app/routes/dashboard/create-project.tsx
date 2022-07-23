@@ -103,7 +103,7 @@ export default function CreateProjectRoute() {
                       ? "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500"
                       : ""
                   }`}
-                  placeholder="my-project"
+                  placeholder={t("form.placeholder.project_name")}
                   defaultValue={action?.fields.name}
                   aria-invalid={Boolean(action?.fieldErrors?.name)}
                   aria-describedby="name-description"

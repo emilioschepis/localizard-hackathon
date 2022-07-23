@@ -37,19 +37,19 @@ export function validateProjectName(name: unknown) {
 
 export function validateLabelKey(key: unknown) {
   if (typeof key !== "string") {
-    return "label key must be a string";
+    return "error.validation.label_key_string";
   }
 
   const expression = /^[a-z-_]+(?:\.[a-z-_]+)*$/;
 
   if (!expression.test(key)) {
-    return "label key must be lowercase letters, underscores and dashes, separated by dots";
+    return "error.validation.label_key_valid";
   }
 }
 
 export function validateLabelDescription(description: unknown) {
   if (typeof description !== "string") {
-    return "label description must be a string";
+    return "error.validation.label_description_string";
   }
 }
 
