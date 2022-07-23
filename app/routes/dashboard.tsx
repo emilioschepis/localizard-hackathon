@@ -4,6 +4,7 @@ import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import { Fragment, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { db } from "~/lib/db.server";
 import { requireUserId } from "~/lib/session.server";
@@ -27,6 +28,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function DashboardRoute() {
+  const { t } = useTranslation();
   const data = useLoaderData<LoaderData>();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -77,7 +79,9 @@ export default function DashboardRoute() {
                         className="ml-1 flex h-10 w-10 items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
                         onClick={() => setSidebarOpen(false)}
                       >
-                        <span className="sr-only">Close sidebar</span>
+                        <span className="sr-only">
+                          {t("accessibility.close_sidebar")}
+                        </span>
                         <XIcon
                           className="h-6 w-6 text-white"
                           aria-hidden="true"
@@ -90,7 +94,7 @@ export default function DashboardRoute() {
                       aria-hidden
                       className="text-xl font-bold text-emerald-700"
                     >
-                      Localizard
+                      {t("name")}
                     </p>
                   </div>
                   <div className="mt-5 h-0 flex-1 overflow-y-auto">
@@ -141,7 +145,7 @@ export default function DashboardRoute() {
           <div className="flex flex-grow flex-col overflow-y-auto border-r border-gray-200 bg-white pt-5">
             <div className="flex flex-shrink-0 items-center px-4">
               <p aria-hidden className="text-xl font-bold text-emerald-700">
-                Localizard
+                {t("name")}
               </p>
             </div>
             <div className="mt-5 flex flex-grow flex-col">
@@ -186,7 +190,7 @@ export default function DashboardRoute() {
               className="border-r border-gray-200 px-4 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-600 md:hidden"
               onClick={() => setSidebarOpen(true)}
             >
-              <span className="sr-only">Open sidebar</span>
+              <span className="sr-only">{t("accessibility.open_sidebar")}</span>
               <MenuAlt2Icon className="h-6 w-6" aria-hidden="true" />
             </button>
             <div className="flex flex-1 justify-between px-4">
@@ -196,7 +200,9 @@ export default function DashboardRoute() {
                 <Menu as="div" className="relative ml-3">
                   <div>
                     <Menu.Button className="flex max-w-xs items-center rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2">
-                      <span className="sr-only">Open user menu</span>
+                      <span className="sr-only">
+                        {t("accessibility.open_user_menu")}
+                      </span>
                       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-300">
                         <p aria-hidden className="text-xl font-black uppercase">
                           {data.email[0]}
@@ -224,7 +230,7 @@ export default function DashboardRoute() {
                                 "block w-full px-4 py-2 text-sm text-gray-700"
                               )}
                             >
-                              Sign out
+                              {t("auth.sign_out")}
                             </button>
                           </Form>
                         )}

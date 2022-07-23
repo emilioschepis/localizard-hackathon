@@ -1,8 +1,10 @@
 import { ExclamationCircleIcon } from "@heroicons/react/outline";
 import type { ActionFunction } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 
 import { login } from "~/lib/auth.server";
+import i18next from "~/lib/i18n.server";
 import { createUserSession } from "~/lib/session.server";
 import type { FormActionData } from "~/types/types";
 import { badRequest } from "~/utils/responses";
@@ -13,6 +15,7 @@ type Fields = { email: string; password: string };
 type ActionData = FormActionData<Fields>;
 
 export const action: ActionFunction = async ({ request }) => {
+  const t = await i18next.getFixedT(request);
   const form = await request.formData();
   const email = form.get("email");
   const password = form.get("password");
@@ -20,15 +23,15 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (typeof email !== "string" || typeof password !== "string") {
     return badRequest<ActionData>({
-      formError: "invalid form data",
+      formError: t("error.invalid_form_data"),
       fields: { email: "", password: "" },
     });
   }
 
   const fields = { email, password };
   const fieldErrors = {
-    email: validateEmail(email),
-    password: validatePassword(password),
+    email: t(validateEmail(email) ?? ""),
+    password: t(validatePassword(password) ?? ""),
   };
 
   if (Object.values(fieldErrors).some(Boolean)) {
@@ -39,7 +42,7 @@ export const action: ActionFunction = async ({ request }) => {
   if (!user) {
     return badRequest<ActionData>({
       fieldErrors: {
-        email: "invalid email/password combination",
+        email: t("error.auth.invalid_credentials"),
         password: undefined,
       },
       fields,
@@ -50,6 +53,7 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function LoginRoute() {
+  const { t } = useTranslation();
   const action = useActionData<ActionData>();
   const [searchParams] = useSearchParams();
 
@@ -57,15 +61,15 @@ export default function LoginRoute() {
     <div className="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Sign in to your account
+          {t("auth.login.prompt")}
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Or{" "}
+          {t("generic.or")}{" "}
           <Link
             to="/register"
             className="font-medium text-emerald-600 hover:text-emerald-500"
           >
-            create a free account now
+            {t("auth.login.register_prompt")}
           </Link>
         </p>
       </div>
@@ -84,7 +88,7 @@ export default function LoginRoute() {
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-700"
               >
-                Email
+                {t("form.label.email")}
               </label>
               <div className="relative mt-1 rounded-md shadow-sm">
                 <input
@@ -98,7 +102,7 @@ export default function LoginRoute() {
                       ? "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500"
                       : ""
                   }`}
-                  placeholder="you@email.com"
+                  placeholder={t("form.placeholder.email")}
                   defaultValue={action?.fields.email}
                   aria-invalid={Boolean(action?.fieldErrors?.email)}
                   aria-errormessage={
@@ -126,7 +130,7 @@ export default function LoginRoute() {
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-700"
               >
-                Password
+                {t("form.label.password")}
               </label>
               <div className="relative mt-1 rounded-md shadow-sm">
                 <input
@@ -140,7 +144,7 @@ export default function LoginRoute() {
                       ? "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500"
                       : ""
                   }`}
-                  placeholder="your password"
+                  placeholder={t("form.placeholder.password")}
                   defaultValue={action?.fields.password}
                   aria-invalid={Boolean(action?.fieldErrors?.password)}
                   aria-errormessage={
@@ -168,7 +172,7 @@ export default function LoginRoute() {
                 type="submit"
                 className="flex w-full justify-center rounded-md border border-transparent bg-emerald-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
               >
-                Sign in
+                {t("auth.login.cta")}
               </button>
             </div>
           </Form>
