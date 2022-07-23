@@ -1,8 +1,10 @@
-import type { LoaderFunction } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { Form, Link, useLoaderData } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 
 import { db } from "~/lib/db.server";
+import { requireUserId } from "~/lib/session.server";
+import { notFound } from "~/utils/responses";
 
 type LoaderData = {
   project: NonNullable<Awaited<ReturnType<typeof getProject>>>;
@@ -42,6 +44,33 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   return {
     project,
   };
+};
+
+export const action: ActionFunction = async ({ request, params }) => {
+  const userId = await requireUserId(request);
+  const form = await request.formData();
+
+  const labelId = form.get("labelId");
+
+  const label = await db.label.findUnique({
+    where: { id: labelId as string },
+    select: {
+      id: true,
+      project: {
+        select: {
+          userId: true,
+        },
+      },
+    },
+  });
+
+  if (!label || label.project.userId !== userId) {
+    throw notFound();
+  }
+
+  await db.label.delete({ where: { id: label.id } });
+
+  return null;
 };
 
 export default function ProjectIndexRoute() {
@@ -115,13 +144,31 @@ export default function ProjectIndexRoute() {
                         {label.translations.length}
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                        <Link
-                          to={label.id}
-                          className="text-emerald-700 hover:text-emerald-900"
-                        >
-                          {t("generic.edit")}
-                          <span className="sr-only">, {label.key}</span>
-                        </Link>
+                        <div className="flex items-center justify-end gap-2">
+                          <Link
+                            to={label.id}
+                            className="text-emerald-700 hover:text-emerald-900"
+                          >
+                            {t("generic.edit")}
+                            <span className="sr-only">, {label.key}</span>
+                          </Link>
+                          <Form method="post">
+                            <input
+                              type="hidden"
+                              name="intent"
+                              value="delete-label"
+                            />
+                            <input
+                              type="hidden"
+                              name="labelId"
+                              value={label.id}
+                            />
+                            <button type="submit" className="text-red-600">
+                              {t("generic.delete")}
+                              <span className="sr-only">, {label.key}</span>
+                            </button>
+                          </Form>
+                        </div>
                       </td>
                     </tr>
                   ))}
