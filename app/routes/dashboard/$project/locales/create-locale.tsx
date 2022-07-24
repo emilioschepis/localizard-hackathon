@@ -1,7 +1,7 @@
 import { ExclamationCircleIcon } from "@heroicons/react/outline";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import { Form, useActionData, useSearchParams } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 
 import { db } from "~/lib/db.server";
@@ -10,6 +10,7 @@ import { requireUserId } from "~/lib/session.server";
 import { getProject } from "~/models/project.server";
 import type { FormActionData } from "~/types/types";
 import { badRequest, notFound } from "~/utils/responses";
+import { sanitizeRedirectTo } from "~/utils/sanitizers";
 import { validateLocaleName } from "~/utils/validators";
 
 type ActionData = FormActionData<{ name: string }>;
@@ -45,6 +46,11 @@ export const action: ActionFunction = async ({ request, params }) => {
     throw notFound();
   }
 
+  const redirectTo = sanitizeRedirectTo(
+    form.get("redirectTo"),
+    `/dashboard/${project.name}/locales`
+  );
+
   const fields = { name };
   const fieldErrors = {
     name: t(validateLocaleName(name) ?? ""),
@@ -69,12 +75,13 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   await db.locale.create({ data: { projectId: project.id, name } });
 
-  return redirect(`/dashboard/${project.name}/locales`);
+  return redirect(redirectTo);
 };
 
 export default function CreateProjectRoute() {
   const { t } = useTranslation();
   const action = useActionData<ActionData>();
+  const [searchParams] = useSearchParams();
 
   return (
     <div className="py-4">
@@ -86,6 +93,11 @@ export default function CreateProjectRoute() {
         </div>
       </div>
       <Form method="post">
+        <input
+          type="hidden"
+          name="redirectTo"
+          value={searchParams.get("redirectTo") ?? "undefined"}
+        />
         <div className="flex flex-col space-y-2">
           <div>
             <label
