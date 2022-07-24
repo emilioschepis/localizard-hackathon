@@ -167,6 +167,11 @@ export default function ApiRoute() {
               GET {data.baseUrl}/api/v1/projects/{params.project}
             </code>
           </p>
+          <p className="mt-1 text-gray-700">
+            <code>
+              GET {data.baseUrl}/api/v1/projects/{params.project}?mode=nested
+            </code>
+          </p>
 
           <h3 className="mt-4 text-lg">
             {t("page.project.api.retrieve_language")}
@@ -175,6 +180,12 @@ export default function ApiRoute() {
             <code>
               GET {data.baseUrl}/api/v1/projects/{params.project}/
               {data.key.project.locales[0]?.name ?? "en-gb"}
+            </code>
+          </p>
+          <p className="mt-1 text-gray-700">
+            <code>
+              GET {data.baseUrl}/api/v1/projects/{params.project}/
+              {data.key.project.locales[0]?.name ?? "en-gb"}?mode=nested
             </code>
           </p>
         </div>

@@ -2,6 +2,7 @@ import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 
 import { db } from "~/lib/db.server";
+import { stringToNestedObject } from "~/utils/objects";
 import { notFound, unauthorized } from "~/utils/responses";
 
 async function getProject(name: string, locale: string) {
@@ -36,6 +37,9 @@ async function getProject(name: string, locale: string) {
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
+  const url = new URL(request.url);
+  const mode = url.searchParams.get("mode") === "nested" ? "nested" : "flat";
+
   const project = await getProject(
     params.project as string,
     params.locale as string
@@ -63,7 +67,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   const translations = locale.translations.reduce((loc, trans) => {
     if (trans.value) {
-      return { ...loc, [trans.label.key]: trans.value };
+      if (mode === "nested") {
+        return stringToNestedObject({ ...loc, [trans.label.key]: trans.value });
+      } else {
+        return { ...loc, [trans.label.key]: trans.value };
+      }
     } else {
       return loc;
     }
