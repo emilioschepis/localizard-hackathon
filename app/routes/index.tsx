@@ -1,8 +1,33 @@
 import { Popover, Transition } from "@headlessui/react";
 import { MenuIcon, XIcon } from "@heroicons/react/outline";
+import type { LoaderFunction, MetaFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Link } from "@remix-run/react";
 import { Fragment } from "react";
 import { useTranslation } from "react-i18next";
+
+import i18next from "~/lib/i18n.server";
+
+type LoaderData = {
+  title: string;
+  description: string;
+};
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const t = await i18next.getFixedT(request);
+
+  return json<LoaderData>({
+    title: t("name"),
+    description: t("seo.description"),
+  });
+};
+
+export const meta: MetaFunction = ({ data }) => {
+  return {
+    title: (data as LoaderData).title,
+    description: (data as LoaderData).description,
+  };
+};
 
 export default function IndexRoute() {
   const { t } = useTranslation();

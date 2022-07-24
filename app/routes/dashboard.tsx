@@ -1,30 +1,40 @@
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { FolderIcon, MenuAlt2Icon, XIcon } from "@heroicons/react/outline";
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import { Fragment, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { db } from "~/lib/db.server";
+import i18next from "~/lib/i18n.server";
 import { requireUserId } from "~/lib/session.server";
 import { classNames } from "~/utils/style";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: FolderIcon },
+  { name: "dashboard.title", href: "/dashboard", icon: FolderIcon },
 ];
 
 type LoaderData = {
+  title: string;
   email: string;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
+  const t = await i18next.getFixedT(request);
   const userId = await requireUserId(request);
   const user = await db.user.findUniqueOrThrow({ where: { id: userId } });
 
   return json<LoaderData>({
+    title: `${t("dashboard.title")} / ${t("name")}`,
     email: user.email,
   });
+};
+
+export const meta: MetaFunction = ({ data }) => {
+  return {
+    title: (data as LoaderData).title,
+  };
 };
 
 export default function DashboardRoute() {
@@ -123,7 +133,7 @@ export default function DashboardRoute() {
                                 )}
                                 aria-hidden="true"
                               />
-                              {item.name}
+                              {t(item.name)}
                             </>
                           )}
                         </NavLink>
@@ -174,7 +184,7 @@ export default function DashboardRoute() {
                           )}
                           aria-hidden="true"
                         />
-                        {item.name}
+                        {t(item.name)}
                       </>
                     )}
                   </NavLink>

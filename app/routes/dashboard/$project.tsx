@@ -1,14 +1,16 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { NavLink, Outlet, useLoaderData, useNavigate } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 
 import { db } from "~/lib/db.server";
+import i18next from "~/lib/i18n.server";
 import { requireUserId } from "~/lib/session.server";
 import { notFound } from "~/utils/responses";
 import { classNames } from "~/utils/style";
 
 type LoaderData = {
+  title: string;
   project: NonNullable<Awaited<ReturnType<typeof getProject>>>;
 };
 
@@ -24,6 +26,7 @@ async function getProject(name: string) {
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
+  const t = await i18next.getFixedT(request);
   const userId = await requireUserId(request);
   const project = await getProject(params.project!);
 
@@ -31,7 +34,16 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     throw notFound();
   }
 
-  return json({ project });
+  return json<LoaderData>({
+    title: `${project.name} / ${t("name")}`,
+    project,
+  });
+};
+
+export const meta: MetaFunction = ({ data }) => {
+  return {
+    title: (data as LoaderData).title,
+  };
 };
 
 const tabs = [
