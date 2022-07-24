@@ -29,6 +29,11 @@ async function getProject(name: string, locale: string) {
                 },
               },
             },
+            orderBy: {
+              label: {
+                key: "asc",
+              },
+            },
           },
         },
       },
