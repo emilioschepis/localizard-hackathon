@@ -2,23 +2,27 @@ import { Popover, Transition } from "@headlessui/react";
 import { MenuIcon, XIcon } from "@heroicons/react/outline";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { Fragment } from "react";
 import { useTranslation } from "react-i18next";
 
 import i18next from "~/lib/i18n.server";
+import { getUserId } from "~/lib/session.server";
 
 type LoaderData = {
   title: string;
   description: string;
+  authenticated: boolean;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
   const t = await i18next.getFixedT(request);
+  const userId = await getUserId(request);
 
   return json<LoaderData>({
     title: t("name"),
     description: t("seo.description"),
+    authenticated: !!userId,
   });
 };
 
@@ -31,6 +35,7 @@ export const meta: MetaFunction = ({ data }) => {
 
 export default function IndexRoute() {
   const { t } = useTranslation();
+  const data = useLoaderData<LoaderData>();
 
   return (
     <div className="relative overflow-hidden bg-white">
@@ -66,12 +71,21 @@ export default function IndexRoute() {
                   </div>
                 </div>
                 <div className="hidden md:ml-10 md:block md:space-x-8 md:pr-4">
-                  <Link
-                    to="dashboard"
-                    className="font-medium text-gray-500 hover:text-gray-900"
-                  >
-                    {t("page.home.nav.dashboard")}
-                  </Link>
+                  {data.authenticated ? (
+                    <Link
+                      to="dashboard"
+                      className="font-medium text-gray-500 hover:text-gray-900"
+                    >
+                      {t("page.home.nav.dashboard")}
+                    </Link>
+                  ) : (
+                    <Link
+                      to="login"
+                      className="font-medium text-emerald-700 hover:text-emerald-600"
+                    >
+                      {t("page.home.login_cta")}
+                    </Link>
+                  )}
                   <a
                     href="https://blog.emilioschepis.com/series/planetscale-hackathon"
                     className="font-medium text-gray-500 hover:text-gray-900"
@@ -80,12 +94,6 @@ export default function IndexRoute() {
                   >
                     {t("page.home.nav.hackathon")}
                   </a>
-                  <Link
-                    to="login"
-                    className="font-medium text-emerald-700 hover:text-emerald-600"
-                  >
-                    {t("page.home.login_cta")}
-                  </Link>
                 </div>
               </nav>
             </div>
@@ -122,12 +130,21 @@ export default function IndexRoute() {
                     </div>
                   </div>
                   <div className="space-y-1 px-2 pt-2 pb-3">
-                    <Link
-                      to="dashboard"
-                      className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-                    >
-                      {t("page.home.nav.dashboard")}
-                    </Link>
+                    {data.authenticated ? (
+                      <Link
+                        to="dashboard"
+                        className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                      >
+                        {t("page.home.nav.dashboard")}
+                      </Link>
+                    ) : (
+                      <Link
+                        to="login"
+                        className="block w-full bg-gray-50 px-5 py-3 text-center font-medium text-emerald-600 hover:bg-gray-100"
+                      >
+                        {t("page.home.login_cta")}
+                      </Link>
+                    )}
                     <a
                       href="https://blog.emilioschepis.com/series/planetscale-hackathon"
                       className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900"
@@ -137,12 +154,6 @@ export default function IndexRoute() {
                       {t("page.home.nav.hackathon")}
                     </a>
                   </div>
-                  <Link
-                    to="login"
-                    className="block w-full bg-gray-50 px-5 py-3 text-center font-medium text-emerald-600 hover:bg-gray-100"
-                  >
-                    {t("page.home.login_cta")}
-                  </Link>
                 </div>
               </Popover.Panel>
             </Transition>
@@ -163,12 +174,21 @@ export default function IndexRoute() {
               </p>
               <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
                 <div className="rounded-md shadow">
-                  <Link
-                    to="register"
-                    className="flex w-full items-center justify-center rounded-md border border-transparent bg-emerald-600 px-8 py-3 text-base font-medium text-white hover:bg-emerald-700 md:py-4 md:px-10 md:text-lg"
-                  >
-                    {t("page.home.register_cta")}
-                  </Link>
+                  {data.authenticated ? (
+                    <Link
+                      to="dashboard"
+                      className="flex w-full items-center justify-center rounded-md border border-transparent bg-emerald-600 px-8 py-3 text-base font-medium text-white hover:bg-emerald-700 md:py-4 md:px-10 md:text-lg"
+                    >
+                      {t("page.home.dashboard_cta")}
+                    </Link>
+                  ) : (
+                    <Link
+                      to="register"
+                      className="flex w-full items-center justify-center rounded-md border border-transparent bg-emerald-600 px-8 py-3 text-base font-medium text-white hover:bg-emerald-700 md:py-4 md:px-10 md:text-lg"
+                    >
+                      {t("page.home.register_cta")}
+                    </Link>
+                  )}
                 </div>
                 <div className="mt-3 sm:mt-0 sm:ml-3">
                   <a
