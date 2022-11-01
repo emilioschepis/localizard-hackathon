@@ -3,8 +3,10 @@ export function validateEmail(email: unknown) {
     return "error.validation.email_string";
   }
 
-  // TODO: Improve email validation
-  if (!email.includes("@") || !email.includes(".")) {
+  const expression =
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i;
+
+  if (!email.includes("@") || !email.includes(".") || !expression.test(email)) {
     return "error.validation.email_valid";
   }
 }
